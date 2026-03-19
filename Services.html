@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillHive Services</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+        }
+
+        /* NAVBAR */
+        .topnav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+        }
+
+        .topnav a {
+            color: black;
+            text-decoration: none;
+            margin: 5px 10px;
+            font-size: 14px;
+        }
+
+        .topnav a:first-child {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .topnav input {
+            padding: 8px 12px;
+            border: none;
+            background: orange;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* HERO */
+        .hero {
+            padding: 60px 20px;
+            background: linear-gradient(purple, blue);
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .hero h3 {
+            font-weight: normal;
+            font-size: 16px;
+        }
+
+        /* SERVICES GRID */
+        .services {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .service-card {
+            background: white;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .service-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .service-card img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+
+        .service-card-content {
+            padding: 15px;
+        }
+
+        .service-card-content h4 {
+            margin-bottom: 10px;
+        }
+
+        .service-card-content p {
+            font-size: 14px;
+            color: #555;
+        }
+
+        /* FOOTER (same as homepage) */
+        .footer {
+            position: relative;
+            color: white;
+            padding: 40px 20px;
+            background: 
+                linear-gradient(to bottom, rgba(128, 0, 128, 0.7), rgba(0, 0, 0, 0.9)),
+                url('images/Welding.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+            backdrop-filter: blur(2px);
+        }
+
+        .footer h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .footer p, .footer a {
+            font-size: 14px;
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer button {
+            padding: 10px;
+            background: orange;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .services {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .footer-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .services {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="topnav">
+        <a href="Home.html">SKILLHIVE</a>
+        <div>
+            <a href="Index.html">Home</a>
+            <a href="galery.html">Gallery</a>
+            <a href="Services.html">Services</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <input type="button" value="Join us">
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1>Our Services</h1>
+        <h3>Explore the skilled services offered by local professionals</h3>
+    </div>
+
+    <!-- SERVICES GRID -->
+    <div class="services">
+        <div class="service-card">
+            <img src="images/Welding.jpeg" alt="Welding">
+            <div class="service-card-content">
+                <h4>Welding</h4>
+                <p>Expert welding services for metal fabrication, repairs, and construction.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Automotive.jpeg" alt="Automotive Repair">
+            <div class="service-card-content">
+                <h4>Automotive Repair</h4>
+                <p>Professional vehicle maintenance, repairs, and diagnostics.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Electrical.jpeg" alt="Electrical Installation">
+            <div class="service-card-content">
+                <h4>Electrical Installation</h4>
+                <p>Safe and reliable electrical installations and troubleshooting services.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Plumber.jpeg" alt="Plumbing">
+            <div class="service-card-content">
+                <h4>Plumbing</h4>
+                <p>Professional plumbing solutions including repairs, installations, and maintenance.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Capentry.jpeg" alt="Carpentry">
+            <div class="service-card-content">
+                <h4>Carpentry</h4>
+                <p>Custom woodwork, furniture making, and carpentry solutions.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Landscaping.jpeg" alt="Landscaping">
+            <div class="service-card-content">
+                <h4>Landscaping</h4>
+                <p>Beautiful landscaping, gardening, and outdoor space design services.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Tailor.jpg" alt="Tailoring">
+            <div class="service-card-content">
+                <h4>Tailoring</h4>
+                <p>Custom clothing, alterations, and sewing services by skilled tailors.</p>
+            </div>
+        </div>
+
+        <div class="service-card">
+            <img src="images/Graphic.jpeg" alt="Graphic Design">
+            <div class="service-card-content">
+                <h4>Graphic Design</h4>
+                <p>Creative graphic design services including branding, logos, and digital media.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-container">
+            <div>
+                <h3>Quick Links</h3>
+                <a href="Index.html">Home</a>
+                <a href="Services.html">Services</a>
+                <a href="Galery.html">Gallery</a>
+                <a href="About.html">About</a>
+                <a href="Contact.html">Contact</a>
+            </div>
+
+            <div>
+                <h3>Services</h3>
+                <p>Welding</p>
+                <p>Automotive Repair</p>
+                <p>Electrical Installation</p>
+                <p>Plumbing</p>
+                <p>Carpentry</p>
+                <p>Landscaping</p>
+            </div>
+
+            <div>
+                <h3>Contact</h3>
+                <p>📞 +265 (0) 990 15 67 38</p>
+                <p>📧 info@skillhive.com</p>
+                <p>Lilongwe, Malawi</p>
+            </div>
+
+            <div>
+                <h3>Connect</h3>
+                <p>Facebook</p>
+                <p>WhatsApp</p>
+                <p>Instagram</p>
+                <br>
+                <button>Join as a Skilled Worker</button>
+            </div>
+        </div>
+
+        <div class="footer-bottom">
+            © 2026 SkillHive | Privacy Policy | Terms of Service
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SkillHive Gallery</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: Arial, sans-serif;
+        }
+
+        body {
+            background: #f5f5f5;
+        }
+
+        /* NAVBAR */
+        .topnav {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 15px 20px;
+        }
+
+        .topnav a {
+            color: black;
+            text-decoration: none;
+            margin: 5px 10px;
+            font-size: 14px;
+        }
+
+        .topnav a:first-child {
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .topnav input {
+            padding: 8px 12px;
+            border: none;
+            background: orange;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        /* HERO */
+        .hero {
+            padding: 60px 20px;
+            background: linear-gradient(purple, blue);
+            color: white;
+            text-align: center;
+        }
+
+        .hero h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+        }
+
+        .hero h3 {
+            font-weight: normal;
+            font-size: 16px;
+        }
+
+        /* GALLERY GRID */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .gallery img {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            border-radius: 10px;
+            transition: transform 0.3s ease;
+            cursor: pointer;
+        }
+
+        .gallery img:hover {
+            transform: scale(1.05);
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 1024px) {
+            .gallery {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .gallery {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* FOOTER (same as homepage) */
+        .footer {
+            position: relative;
+            color: white;
+            padding: 40px 20px;
+            background: 
+                linear-gradient(to bottom, rgba(128, 0, 128, 0.7), rgba(0, 0, 0, 0.9)),
+                url('images/Welding.jpeg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .footer-container {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            max-width: 1200px;
+            margin: auto;
+            backdrop-filter: blur(2px);
+        }
+
+        .footer h3 {
+            margin-bottom: 15px;
+            font-size: 16px;
+        }
+
+        .footer p, .footer a {
+            font-size: 14px;
+            color: #ccc;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .footer a:hover {
+            color: white;
+        }
+
+        .footer button {
+            padding: 10px;
+            background: orange;
+            border: none;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .footer-bottom {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            color: #aaa;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <div class="topnav">
+        <a href="Home.html">SKILLHIVE</a>
+        <div>
+            <a href="Index.html">Home</a>
+            <a href="galery.html">Gallery</a>
+            <a href="Services.html">Services</a>
+            <a href="about.html">About</a>
+            <a href="contact.html">Contact</a>
+            <input type="button" value="Join us">
+        </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="hero">
+        <h1>Our Gallery</h1>
+        <h3>Browse examples of skilled work from local professionals</h3>
+    </div>
+
+    <!-- GALLERY GRID -->
+    <div class="gallery">
+        <img src="images/Plumber.jpeg" alt="Plumbing Work">
+        <img src="images/Tailor.jpg" alt="Tailoring Work">
+        <img src="images/Welding.jpeg" alt="Welding Work">
+        <img src="images/Automotive.jpeg" alt="Automotive Work">
+        <img src="images/Landscaping.jpeg" alt="Landscaping Work">
+        <img src="images/Electrical.jpeg" alt="Electrical Installation">
+        <img src="images/Capentry.jpeg" alt="Carpentry Work">
+        <img src="images/Graphic.jpeg" alt="Graphic Design Work">
+    </div>
+
+    <!-- FOOTER -->
+    <div class="footer">
+        <div class="footer-container">
+
+            <!-- Quick Links -->
+            <div>
+                <h3>Quick Links</h3>
+                <a href="#">Home</a>
+                <a href="#">Services</a>
+                <a href="#">Gallery</a>
+                <a href="#">About</a>
+                <a href="#">Contact</a>
+            </div>
+
+            <!-- Services -->
+            <div>
+                <h3>Services</h3>
+                <p>Welding</p>
+                <p>Automotive Repair</p>
+                <p>Electrical Installation</p>
+                <p>Plumbing</p>
+                <p>Carpentry</p>
+                <p>Landscaping</p>
+            </div>
+
+            <!-- Contact -->
+            <div>
+                <h3>Contact</h3>
+                <p>📞 +265 (0) 990 15 67 38</p>
+                <p>📧 info@skillhive.com</p>
+                <p>Lilongwe, Malawi</p>
+            </div>
+
+            <!-- Social + CTA -->
+            <div>
+                <h3>Connect</h3>
+                <p>Facebook</p>
+                <p>WhatsApp</p>
+                <p>Instagram</p>
+                <br>
+                <button>Join as a Skilled Worker</button>
+            </div>
+
+        </div>
+
+        <div class="footer-bottom">
+            © 2026 SkillHive | Privacy Policy | Terms of Service
+        </div>
+    </div>
+
+</body>
+</html>
