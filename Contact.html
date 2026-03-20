@@ -102,7 +102,7 @@
             flex-direction: column;
         }
 
-        .contact-form input, .contact-form textarea {
+        .contact-form input {
             padding: 10px;
             margin-bottom: 15px;
             border: 1px solid #ccc;
@@ -114,10 +114,14 @@
             padding: 12px;
             border: none;
             border-radius: 5px;
-            background: orange;
+            background: #25D366; /* WhatsApp green */
             color: white;
             font-size: 16px;
             cursor: pointer;
+        }
+
+        .contact-form button:hover {
+            background: #128C7E;
         }
 
         .ceo-section img {
@@ -204,14 +208,14 @@
     <!-- NAVBAR -->
     <div class="topnav">
         <a href="Home.html">SKILLHIVE</a>
-<div>
-            <a href="index.html">Home</a>
-            <a href="Galery.html">Gallery</a>
+        <div>
+            <a href="Index.html">Home</a>
+            <a href="gallery.html">Gallery</a>
             <a href="Services.html">Services</a>
             <a href="About.html">About</a>
             <a href="Contact.html">Contact</a>
             <input type="button" value="Join us">
-</div>
+        </div>
     </div>
 
     <!-- HERO -->
@@ -226,19 +230,22 @@
         <!-- Contact Info -->
         <div class="contact-info">
             <h2>Contact Information</h2>
-            <p>   Phone: +265 (0) 990 15 67 38</p>
-            <p>   Email: info@skillhive.com</p>
-            <p>   Location: Lilongwe, Malawi</p>
+            <p>Phone: +265 (0) 990 15 67 38</p>
+            <p>Email: info@skillhive.com</p>
+            <p>Location: Lilongwe, Malawi</p>
         </div>
 
-        <!-- Contact Form -->
+        <!-- WhatsApp Form -->
         <div class="contact-form">
-            <h2>Send a Message</h2>
-            <form action="https://formspree.io/f/mnqwyvaz" method="POST">
-                <input type="text" name="name" placeholder="Your Name" required>
-                <input type="email" name="_replyto" placeholder="Your Email" required>
-                <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
-                <button type="submit">Send Message</button>
+            <h2>Send a Message via WhatsApp</h2>
+            <form id="whatsappForm">
+                <input type="text" name="Name" placeholder="Your Full Name" required>
+                <input type="text" name="Location" placeholder="Your Location" required>
+                <input type="text" name="Skill" placeholder="Your Skill" required>
+                <input type="text" name="Experience" placeholder="Your Experience" required>
+                <input type="text" name="Mobile" placeholder="Mobile Number" required>
+                <input type="email" name="Email" placeholder="Email Address" required>
+                <button type="submit">Submit via WhatsApp</button>
             </form>
         </div>
 
@@ -277,8 +284,8 @@
             <div>
                 <h3>Contact</h3>
                 <p>📞 +265 (0) 990 15 67 38</p>
-                <p>   info@skillhive.com</p>
-                <p>   Lilongwe, Malawi</p>
+                <p>info@skillhive.com</p>
+                <p>Lilongwe, Malawi</p>
             </div>
 
             <div>
@@ -295,6 +302,23 @@
             © 2026 SkillHive | Privacy Policy | Terms of Service
         </div>
     </div>
+
+    <script>
+        document.getElementById('whatsappForm').addEventListener('submit', function(e){
+            e.preventDefault();
+
+            const form = e.target;
+            const formData = Array.from(form.elements)
+                .filter(el => el.name) // only elements with a name
+                .map(el => `${el.name}: ${encodeURIComponent(el.value)}`)
+                .join('%0A'); // new line in URL
+
+            const phone = '265990156738'; // your WhatsApp number
+            const url = `https://api.whatsapp.com/send?phone=${phone}&text=${formData}`;
+
+            window.open(url, '_blank');
+        });
+    </script>
 
 </body>
 </html>
