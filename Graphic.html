@@ -1,224 +1,170 @@
-<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html><html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Graphic Designer - SkillHive</title>
+    <title>Graphic Designer - SkillHive</title><style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: Arial, sans-serif;
+    }
 
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: Arial, sans-serif;
-        }
+    body {
+        background: #f5f5f5;
+    }
 
-        body {
-            background: #f5f5f5;
-        }
+    .topnav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: white;
+        padding: 15px 20px;
+    }
 
-        /* NAVBAR */
-        .topnav {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: white;
-            padding: 15px 20px;
-        }
+    .topnav a {
+        text-decoration: none;
+        color: black;
+        margin: 0 10px;
+    }
 
-        .topnav a {
-            text-decoration: none;
-            color: black;
-            margin: 0 10px;
-        }
+    .topnav a:first-child {
+        font-weight: bold;
+        font-size: 18px;
+    }
 
-        .topnav a:first-child {
-            font-weight: bold;
-            font-size: 18px;
-        }
+    .hero {
+        padding: 50px;
+        text-align: center;
+        color: white;
+        background: linear-gradient(purple, blue);
+    }
 
-        /* HERO */
-        .hero {
-            padding: 50px;
-            text-align: center;
-            color: white;
-            background: linear-gradient(purple, blue);
-        }
+    /* PROFILE SECTION */
+    #profiles {
+        padding: 50px 20px;
+        max-width: 1000px;
+        margin: auto;
+    }
 
-        /* PROFILE SECTION */
+    .profile-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 40px;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+    }
+
+    .profile-image img {
+        width: 250px;
+        height: 250px;
+        object-fit: cover;
+        border-radius: 50%;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .profile-info {
+        max-width: 400px;
+    }
+
+    .profile-info h2 {
+        margin-bottom: 15px;
+        color: #333;
+    }
+
+    .profile-info p {
+        margin-bottom: 10px;
+        font-size: 16px;
+        color: #555;
+    }
+
+    .buttons {
+        margin-top: 20px;
+    }
+
+    .buttons a {
+        display: inline-block;
+        margin-right: 10px;
+        padding: 10px 15px;
+        border-radius: 5px;
+        color: white;
+        text-decoration: none;
+        font-size: 14px;
+    }
+
+    .whatsapp {
+        background: #25D366;
+    }
+
+    .facebook {
+        background: #1877F2;
+    }
+
+    .email {
+        background: orange;
+    }
+
+    .portfolio-btn {
+        display: block;
+        width: 100%;
+        margin-top: 15px;
+        padding: 12px;
+        background: linear-gradient(purple, blue);
+        color: white;
+        text-align: center;
+        border-radius: 5px;
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: bold;
+    }
+
+    .footer {
+        margin-top: 40px;
+        color: white;
+        padding: 40px 20px;
+        background: 
+            linear-gradient(to bottom, rgba(128,0,128,0.7), rgba(0,0,0,0.9)),
+            url('images/Graphic.jpeg');
+        background-size: cover;
+        background-position: center;
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
         .profile-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            padding: 50px 20px;
-            max-width: 1000px;
-            margin: auto;
-            flex-wrap: wrap;
-        }
-
-        .profile-image img {
-            width: 250px;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 50%;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-
-        .profile-info {
-            max-width: 400px;
-        }
-
-        .profile-info h2 {
-            margin-bottom: 15px;
-            color: #333;
-        }
-
-        .profile-info p {
-            margin-bottom: 10px;
-            font-size: 16px;
-            color: #555;
-        }
-
-        /* BUTTONS */
-        .buttons {
-            margin-top: 20px;
+            flex-direction: column;
+            text-align: center;
         }
 
         .buttons a {
-            display: inline-block;
-            margin-right: 10px;
-            padding: 10px 15px;
-            border-radius: 5px;
-            color: white;
-            text-decoration: none;
-            font-size: 14px;
-        }
-
-        .whatsapp {
-            background: #25D366;
-        }
-
-        .facebook {
-            background: #1877F2;
-        }
-
-        .email {
-            background: orange;
-        }
-
-        /* FULL WIDTH PORTFOLIO BUTTON */
-        .portfolio-btn {
             display: block;
-            width: 100%;
-            margin-top: 15px;
-            padding: 12px;
-            background: linear-gradient(purple, blue);
-            color: white;
-            text-align: center;
-            border-radius: 5px;
-            text-decoration: none;
-            font-size: 15px;
-            font-weight: bold;
+            margin: 10px auto;
         }
+    }
+</style>
 
-        /* FOOTER */
-        .footer {
-            margin-top: 40px;
-            color: white;
-            padding: 40px 20px;
-            background: 
-                linear-gradient(to bottom, rgba(128,0,128,0.7), rgba(0,0,0,0.9)),
-                url('images/Graphic.jpeg');
-            background-size: cover;
-            background-position: center;
-            text-align: center;
-        }
-
-        /* RESPONSIVE */
-        @media (max-width: 768px) {
-            .profile-container {
-                flex-direction: column;
-                text-align: center;
-            }
-
-            .buttons a {
-                display: block;
-                margin: 10px auto;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
-    <!-- NAVBAR -->
-    <div class="topnav">
-        <a href="index.html">SKILLHIVE</a>
-        <div>
-            <a href="index.html">Home</a>
-            <a href="Services.html">Services</a>
-            <a href="About.html">About</a>
-            <a href="Contact.html">Contact</a>
-        </div>
+</head><body><!-- NAVBAR -->
+<div class="topnav">
+    <a href="index.html">SKILLHIVE</a>
+    <div>
+        <a href="index.html">Home</a>
+        <a href="Services.html">Services</a>
+        <a href="About.html">About</a>
+        <a href="Contact.html">Contact</a>
     </div>
+</div>
 
-    <!-- HERO -->
-    <div class="hero">
-        <h1>Graphic Designer Profile</h1>
-    </div>
+<!-- HERO -->
+<div class="hero">
+    <h1>Graphic Designer Profile</h1>
+</div>
 
-    <!-- PROFILE 1 -->
-    <div class="profile-container">
+<!-- 🔥 PROFILES WILL LOAD HERE -->
+<div id="profiles"></div>
 
-        <div class="profile-image">
-            <img src="images/CEO.jpg" alt="Graphic Designer">
-        </div>
-
-        <div class="profile-info">
-            <h2>Professional Details</h2>
-            <p><strong>NAME:</strong> Yafeti Chidzaye</p>
-            <p><strong>SKILL:</strong> Graphic Designer</p>
-            <p><strong>EXPERIENCE:</strong> 2 Years of experience</p>
-            <p><strong>LOCATION:</strong> Mitundu, Lilongwe</p>
-            <p><strong>EMAIL:</strong> yafetichidzaye@gmail.com</p>
-
-            <div class="buttons">
-                <a class="whatsapp" href="https://wa.me/265890277409" target="_blank">WhatsApp</a>
-                <a class="facebook" href="https://www.facebook.com/profile.php?id=100095162181867" target="_blank">Facebook</a>
-                <a class="email" href="mailto:yafetichidzaye@gmail.com">Email</a>
-
-                <!-- FULL WIDTH BUTTON -->
-                <a class="portfolio-btn" href="https://yafeti.github.io/YC-Graphics-/" target="_blank">View Portfolio</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- PROFILE 2 -->
-    <div class="profile-container">
-
-        <div class="profile-image">
-            <img src="images/Manzy.jpg" alt="Graphic Designer">
-        </div>
-
-        <div class="profile-info">
-            <h2>Professional Details</h2>
-            <p><strong>NAME:</strong> Emmanuel Kamtima</p>
-            <p><strong>SKILL:</strong> Graphic Designer</p>
-            <p><strong>EXPERIENCE:</strong> 10 Years of experience</p>
-            <p><strong>LOCATION:</strong> Chipoka, Salima</p>
-            <p><strong>EMAIL:</strong> emmanuelkamtima4@gmail.com</p>
-
-            <div class="buttons">
-                <a class="whatsapp" href="https://wa.me/265995985007" target="_blank">WhatsApp</a>
-                <a class="facebook" href="https://www.facebook.com/manuel.kamtima" target="_blank">Facebook</a>
-                <a class="email" href="mailto:emmanuelkamtima4@gmail.com">Email</a>
-
-                <!-- FULL WIDTH BUTTON -->
-                <a class="portfolio-btn" href="https://trensioelite.netlify.app" target="_blank">View Portfolio</a>
-            </div>
-        </div>
-    </div>
+<!-- LINK YOUR JS FILE -->
+<script src="profiles.js"></script>
 
 </body>
 </html>
