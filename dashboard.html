@@ -11,34 +11,69 @@ body {
   background: #f0f2f5;
 }
 
-/* TOP BAR */
+/* FIXED TOP BAR */
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   background: #1877f2;
   color: white;
-  padding: 12px;
-  font-size: 18px;
+  padding: 10px;
+  z-index: 1000;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* TOP CONTENT LAYOUT */
+.top-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+/* BRAND */
+.brand {
   font-weight: bold;
-  text-align: center;
+  font-size: 18px;
+}
+
+/* OWNER MINI PROFILE */
+.owner-mini {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner-mini img {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
 }
 
 /* SEARCH */
 .search {
-  width: 95%;
-  margin: 10px auto;
-  display: block;
-  padding: 10px;
-  border-radius: 20px;
+  padding: 6px;
+  border-radius: 15px;
   border: none;
   outline: none;
+  width: 160px;
 }
 
-/* CONTAINER */
+/* DROPDOWN */
+select {
+  padding: 6px;
+  border-radius: 10px;
+  border: none;
+}
+
+/* CONTENT */
 .container {
   padding: 10px;
   max-width: 600px;
   margin: auto;
+  margin-top: 120px; /* space for fixed bar */
 }
 
 /* CARD */
@@ -50,29 +85,14 @@ body {
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* PROFILE IMAGE */
 img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  object-fit: cover;
   float: left;
   margin-right: 10px;
 }
 
-/* TEXT */
-h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
-p {
-  margin: 4px 0;
-  font-size: 13px;
-  color: #333;
-}
-
-/* BUTTON */
 button {
   width: 100%;
   padding: 8px;
@@ -81,7 +101,6 @@ button {
   background: #1877f2;
   color: white;
   margin-top: 8px;
-  cursor: pointer;
 }
 
 /* OWNER HIGHLIGHT */
@@ -93,10 +112,31 @@ button {
 
 <body>
 
-<div class="topbar">SkillHive</div>
+<!-- FIXED TOP BAR -->
+<div class="topbar">
 
-<input class="search" placeholder="Search users..." oninput="searchUsers(this.value)">
+  <div class="top-content">
 
+    <div class="brand">SkillHive</div>
+
+    <!-- OWNER PROFILE INSIDE BAR -->
+    <div class="owner-mini">
+      <img id="ownerImg">
+      <span id="ownerName"></span>
+    </div>
+
+    <!-- SEARCH -->
+    <input class="search" id="searchBox" placeholder="Search..." oninput="filterData()">
+
+    <!-- SKILL FILTER -->
+    <select id="skillFilter" onchange="filterData()">
+      <option value="">All Skills</option>
+    </select>
+
+  </div>
+</div>
+
+<!-- USERS -->
 <div class="container" id="users"></div>
 
 <script>
@@ -110,6 +150,20 @@ if (!currentUser) {
   window.location.href = "login.html";
 }
 
+/* OWNER HEADER */
+function setOwner() {
+  document.getElementById("ownerName").innerText = currentUser.username || "User";
+
+  let photo = currentUser["upload profile photo"] || "";
+  const match = photo.match(/[-\w]{25,}/);
+
+  if (match) {
+    photo = "https://drive.google.com/thumbnail?id=" + match[0];
+  }
+
+  document.getElementById("ownerImg").src = photo || "";
+}
+
 /* REMOVE DUPLICATES */
 function removeDuplicates(users) {
   const seen = new Set();
@@ -121,24 +175,25 @@ function removeDuplicates(users) {
   });
 }
 
-/* PIN OWNER TOP */
-function sortUsers(users) {
-  const owner = [];
-  const others = [];
+/* BUILD SKILL DROPDOWN */
+function buildSkills(users) {
+  const select = document.getElementById("skillFilter");
+  const skills = new Set();
 
   users.forEach(u => {
-    if ((u.username || "").trim().toLowerCase() === currentUser.username.trim().toLowerCase()) {
-      owner.push(u);
-    } else {
-      others.push(u);
-    }
+    if (u.skill) skills.add(u.skill);
   });
 
-  return [...owner, ...others];
+  skills.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
 }
 
-/* DISPLAY USERS */
-function displayUsers(users) {
+/* DISPLAY */
+function display(users) {
   const container = document.getElementById("users");
   container.innerHTML = "";
 
@@ -147,7 +202,7 @@ function displayUsers(users) {
     let photo = user["upload profile photo"] || "";
     const match = photo.match(/[-\w]{25,}/);
     if (match) {
-      photo = "https://drive.google.com/thumbnail?id=" + match[0] + "&sz=w200";
+      photo = "https://drive.google.com/thumbnail?id=" + match[0];
     }
 
     const isOwner = user.username === currentUser.username;
@@ -160,22 +215,25 @@ function displayUsers(users) {
         <p><b>Experience:</b> ${user.experience || "N/A"}</p>
         <p><b>Location:</b> ${user.location || "N/A"}</p>
 
-        ${user["portifolio link"] ? `<a href="${user["portifolio link"]}" target="_blank">View Portfolio</a>` : ""}
-
         ${!isOwner ? `<button onclick="bookUser('${user.username}')">Book Me</button>` : "<b>You</b>"}
       </div>
     `;
   });
 }
 
-/* SEARCH */
-function searchUsers(query) {
-  const filtered = allUsers.filter(u =>
-    (u.username || "").toLowerCase().includes(query.toLowerCase()) ||
-    (u.skill || "").toLowerCase().includes(query.toLowerCase())
-  );
+/* FILTER */
+function filterData() {
+  const search = document.getElementById("searchBox").value.toLowerCase();
+  const skill = document.getElementById("skillFilter").value;
 
-  displayUsers(filtered);
+  const filtered = allUsers.filter(u => {
+    return (
+      (u.username || "").toLowerCase().includes(search) &&
+      (skill === "" || u.skill === skill)
+    );
+  });
+
+  display(filtered);
 }
 
 /* BOOK */
@@ -189,12 +247,15 @@ async function loadUsers() {
   const data = await res.json();
 
   const unique = removeDuplicates(data);
-  const sorted = sortUsers(unique);
 
-  allUsers = sorted;
-  displayUsers(sorted);
+  allUsers = unique;
+
+  buildSkills(unique);
+  display(unique);
 }
 
+/* INIT */
+setOwner();
 loadUsers();
 
 </script>
