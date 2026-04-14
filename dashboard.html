@@ -11,27 +11,29 @@ body {
   background: #f4f6f9;
 }
 
-/* TOP BAR */
+/* ===== TOP BAR (FIXED + BIG + RESPONSIVE) ===== */
 .topbar {
   position: fixed;
   top: 0;
   width: 100%;
   background: white;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 10px;
+  padding: 15px;
+  gap: 10px;
   box-shadow: 0 2px 10px rgba(0,0,0,0.1);
   z-index: 1000;
 }
 
-/* LEFT BRAND */
 .brand {
   font-weight: bold;
   color: #1877f2;
+  font-size: 18px;
 }
 
-/* OWNER CARD */
+/* OWNER */
 .owner {
   display: flex;
   align-items: center;
@@ -39,29 +41,27 @@ body {
 }
 
 .owner img {
-  width: 35px;
-  height: 35px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
-/* SEARCH */
+/* INPUTS */
 input {
-  padding: 7px;
+  padding: 10px;
   border-radius: 15px;
   border: 1px solid #ddd;
-  width: 150px;
+  width: 180px;
 }
 
-/* DROPDOWN */
 select {
-  padding: 7px;
+  padding: 10px;
   border-radius: 10px;
   border: 1px solid #ddd;
 }
 
-/* BUTTONS */
 button {
-  padding: 7px 10px;
+  padding: 10px 12px;
   border: none;
   border-radius: 10px;
   background: #1877f2;
@@ -69,15 +69,15 @@ button {
   cursor: pointer;
 }
 
-/* LAYOUT */
+/* ===== MAIN CONTAINER ===== */
 .container {
   padding: 10px;
   max-width: 700px;
   margin: auto;
-  margin-top: 80px;
+  margin-top: 120px;
 }
 
-/* SECTION */
+/* SECTION TITLE */
 .section-title {
   font-weight: bold;
   margin: 15px 0 10px;
@@ -95,16 +95,39 @@ button {
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-/* IMAGE */
 .card img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
 }
 
-/* ADD BUSINESS */
 .add-btn {
   margin-left: auto;
+}
+
+/* POSTS */
+.post {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  input, select, button {
+    width: 100%;
+  }
+
+  .owner {
+    justify-content: center;
+  }
 }
 </style>
 </head>
@@ -132,10 +155,14 @@ button {
 
 </div>
 
+<!-- MAIN -->
 <div class="container">
 
   <div class="section-title">⭐ Featured SkillMen</div>
   <div id="featured"></div>
+
+  <div class="section-title">📝 Posts / Status</div>
+  <div id="posts"></div>
 
   <div class="section-title">👥 All Members</div>
   <div id="members"></div>
@@ -162,16 +189,17 @@ function loadOwner() {
   document.getElementById("ownerImg").src = img;
 }
 
-/* LOAD */
+/* LOAD DATA */
 async function load() {
   const res = await fetch(API_URL);
   users = await res.json();
 
   renderSkills();
   render();
+  renderPosts(users);
 }
 
-/* SKILLS DROPDOWN */
+/* SKILLS */
 function renderSkills() {
   const select = document.getElementById("skills");
   const set = new Set();
@@ -188,7 +216,7 @@ function renderSkills() {
   });
 }
 
-/* RENDER */
+/* MAIN FEED */
 function render(list = users) {
 
   const featured = document.getElementById("featured");
@@ -202,8 +230,6 @@ function render(list = users) {
     let img = u["upload profile photo"] || "";
     const id = img.match(/[-\w]{25,}/);
     if (id) img = "https://drive.google.com/thumbnail?id=" + id;
-
-    const isFeatured = u.skill && u.skill.length > 5;
 
     const card = `
       <div class="card">
@@ -219,7 +245,7 @@ function render(list = users) {
       </div>
     `;
 
-    if (isFeatured) {
+    if (u.skill && u.skill.length > 5) {
       featured.innerHTML += card;
     }
 
@@ -227,42 +253,24 @@ function render(list = users) {
   });
 }
 
+/* POSTS */
+function renderPosts(list) {
+  const posts = document.getElementById("posts");
+  posts.innerHTML = "";
+
+  list.forEach(u => {
+    if (u.status || u.post) {
+      posts.innerHTML += `
+        <div class="post">
+          <b>${u.username}</b><br>
+          <small>${u.status || u.post}</small>
+        </div>
+      `;
+    }
+  });
+}
+
 /* SEARCH */
 function search(q) {
   q = q.toLowerCase();
-  render(users.filter(u =>
-    (u.username || "").toLowerCase().includes(q) ||
-    (u.skill || "").toLowerCase().includes(q)
-  ));
-}
-
-/* FILTER */
-function filterSkill(skill) {
-  if (!skill) return render(users);
-  render(users.filter(u => u.skill === skill));
-}
-
-/* BUSINESS REQUEST */
-function addBusiness(name) {
-  alert(currentUser.username + " sent business request to " + name);
-}
-
-/* INBOX */
-function openInbox() {
-  alert("Inbox feature coming soon");
-}
-
-/* LOGOUT */
-function logout() {
-  localStorage.removeItem("user");
-  window.location.href = "login.html";
-}
-
-/* INIT */
-loadOwner();
-load();
-
-</script>
-
-</body>
-</html>
+  render(users.filter(u
