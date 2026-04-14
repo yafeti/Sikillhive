@@ -2,103 +2,152 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillHive Dashboard</title>
+<title>SkillHive Feed</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
+  background: #f0f2f5;
+}
+
+/* TOP BAR */
+.topbar {
+  position: sticky;
+  top: 0;
+  background: #1877f2;
   color: white;
-}
-
-.container {
-  padding: 15px;
-}
-
-h2 {
+  padding: 12px;
+  font-size: 18px;
+  font-weight: bold;
   text-align: center;
 }
 
+/* SEARCH */
 .search {
-  width: 100%;
+  width: 95%;
+  margin: 10px auto;
+  display: block;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: 20px;
   border: none;
-  margin-bottom: 15px;
+  outline: none;
 }
 
+/* CONTAINER */
+.container {
+  padding: 10px;
+  max-width: 600px;
+  margin: auto;
+}
+
+/* CARD */
 .card {
-  background: linear-gradient(135deg, #6a11cb, #2575fc);
+  background: white;
   padding: 15px;
-  border-radius: 15px;
-  margin-bottom: 15px;
+  border-radius: 12px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
+/* PROFILE IMAGE */
 img {
-  width: 60px;
-  height: 60px;
+  width: 50px;
+  height: 50px;
   border-radius: 50%;
+  object-fit: cover;
+  float: left;
+  margin-right: 10px;
 }
 
+/* TEXT */
+h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
+p {
+  margin: 4px 0;
+  font-size: 13px;
+  color: #333;
+}
+
+/* BUTTON */
 button {
+  width: 100%;
   padding: 8px;
   border: none;
   border-radius: 8px;
-  margin-top: 10px;
-  background: #00c6ff;
+  background: #1877f2;
   color: white;
+  margin-top: 8px;
+  cursor: pointer;
 }
 
+/* OWNER HIGHLIGHT */
 .owner {
-  border: 2px solid yellow;
+  border-left: 4px solid #1877f2;
 }
 </style>
 </head>
 
 <body>
 
-<div class="container">
-  <h2>SkillHive 👋</h2>
+<div class="topbar">SkillHive</div>
 
-  <input class="search" placeholder="Search users..." oninput="searchUsers(this.value)">
+<input class="search" placeholder="Search users..." oninput="searchUsers(this.value)">
 
-  <div id="users"></div>
-</div>
+<div class="container" id="users"></div>
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
+let allUsers = [];
 
 if (!currentUser) {
   window.location.href = "login.html";
 }
 
-let allUsers = [];
-
-// Load users
-async function loadUsers() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
-
-  allUsers = data;
-  displayUsers(data);
+/* REMOVE DUPLICATES */
+function removeDuplicates(users) {
+  const seen = new Set();
+  return users.filter(u => {
+    const key = (u.username || "").trim().toLowerCase();
+    if (!key || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
-// Display users
+/* PIN OWNER TOP */
+function sortUsers(users) {
+  const owner = [];
+  const others = [];
+
+  users.forEach(u => {
+    if ((u.username || "").trim().toLowerCase() === currentUser.username.trim().toLowerCase()) {
+      owner.push(u);
+    } else {
+      others.push(u);
+    }
+  });
+
+  return [...owner, ...others];
+}
+
+/* DISPLAY USERS */
 function displayUsers(users) {
   const container = document.getElementById("users");
   container.innerHTML = "";
 
   users.forEach(user => {
 
-    // image fix
     let photo = user["upload profile photo"] || "";
     const match = photo.match(/[-\w]{25,}/);
     if (match) {
-      photo = "https://drive.google.com/thumbnail?id=" + match[0];
+      photo = "https://drive.google.com/thumbnail?id=" + match[0] + "&sz=w200";
     }
 
     const isOwner = user.username === currentUser.username;
@@ -106,37 +155,46 @@ function displayUsers(users) {
     container.innerHTML += `
       <div class="card ${isOwner ? "owner" : ""}">
         <img src="${photo}">
-        <h3>${user.username}</h3>
+        <h3>${user.username || "No Name"}</h3>
         <p><b>Skill:</b> ${user.skill || "N/A"}</p>
         <p><b>Experience:</b> ${user.experience || "N/A"}</p>
         <p><b>Location:</b> ${user.location || "N/A"}</p>
 
-        ${user.portfolio ? `<a href="${user.portfolio}" target="_blank">View Portfolio</a>` : ""}
+        ${user["portifolio link"] ? `<a href="${user["portifolio link"]}" target="_blank">View Portfolio</a>` : ""}
 
-        <br>
-
-        ${!isOwner ? `<button onclick="bookUser('${user.username}')">Book Me</button>` : "<p>(You)</p>"}
+        ${!isOwner ? `<button onclick="bookUser('${user.username}')">Book Me</button>` : "<b>You</b>"}
       </div>
     `;
   });
 }
 
-// Search function
+/* SEARCH */
 function searchUsers(query) {
   const filtered = allUsers.filter(u =>
-    u.username.toLowerCase().includes(query.toLowerCase()) ||
+    (u.username || "").toLowerCase().includes(query.toLowerCase()) ||
     (u.skill || "").toLowerCase().includes(query.toLowerCase())
   );
 
   displayUsers(filtered);
 }
 
-// Book user (simulation)
-function bookUser(username) {
-  alert(currentUser.username + " booked " + username + " ✅");
+/* BOOK */
+function bookUser(name) {
+  alert(currentUser.username + " booked " + name + " ✔");
 }
 
-// load on start
+/* LOAD */
+async function loadUsers() {
+  const res = await fetch(API_URL);
+  const data = await res.json();
+
+  const unique = removeDuplicates(data);
+  const sorted = sortUsers(unique);
+
+  allUsers = sorted;
+  displayUsers(sorted);
+}
+
 loadUsers();
 
 </script>
