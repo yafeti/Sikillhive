@@ -123,8 +123,9 @@ async function login() {
     const users = await res.json();
 
     const user = users.find(u =>
-      u.username === username && u.password === password
-    );
+  (u.username || "").trim().toLowerCase() === username.trim().toLowerCase() &&
+  (u.password || "").trim() === password.trim()
+);
 
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
