@@ -2,90 +2,73 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillHive Feed</title>
+<title>SkillHive Neo</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: #f0f2f5;
-}
-
-/* FIXED TOP BAR */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  background: #1877f2;
+  background: linear-gradient(135deg, #0f0f0f, #1a1a2e);
   color: white;
-  padding: 10px;
-  z-index: 1000;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* TOP CONTENT LAYOUT */
-.top-content {
+/* TOP GLASS BAR */
+.topbar {
+  position: sticky;
+  top: 0;
+  backdrop-filter: blur(15px);
+  background: rgba(255,255,255,0.08);
+  padding: 12px;
   display: flex;
-  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
+  align-items: center;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 }
 
-/* BRAND */
 .brand {
   font-weight: bold;
   font-size: 18px;
+  color: #00c6ff;
 }
 
-/* OWNER MINI PROFILE */
-.owner-mini {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.owner-mini img {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-/* SEARCH */
-.search {
-  padding: 6px;
-  border-radius: 15px;
-  border: none;
-  outline: none;
-  width: 160px;
-}
-
-/* DROPDOWN */
-select {
-  padding: 6px;
-  border-radius: 10px;
-  border: none;
-}
-
-/* CONTENT */
-.container {
+/* LAYOUT */
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  gap: 10px;
   padding: 10px;
-  max-width: 600px;
-  margin: auto;
-  margin-top: 120px; /* space for fixed bar */
 }
 
-/* CARD */
+/* PANELS */
+.panel {
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(10px);
+  padding: 12px;
+  border-radius: 15px;
+}
+
+/* OWNER */
+.owner img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+/* FEED CARD */
 .card {
-  background: white;
-  padding: 15px;
-  border-radius: 12px;
-  margin-bottom: 12px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  background: rgba(255,255,255,0.08);
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 15px;
+  transition: 0.3s;
 }
 
-img {
+.card:hover {
+  transform: scale(1.02);
+}
+
+/* IMAGE */
+img.user {
   width: 50px;
   height: 50px;
   border-radius: 50%;
@@ -93,170 +76,142 @@ img {
   margin-right: 10px;
 }
 
+/* BUTTON */
 button {
   width: 100%;
   padding: 8px;
+  border-radius: 10px;
   border: none;
-  border-radius: 8px;
-  background: #1877f2;
+  background: #00c6ff;
   color: white;
   margin-top: 8px;
 }
 
-/* OWNER HIGHLIGHT */
-.owner {
-  border-left: 4px solid #1877f2;
+/* SKILL TAGS */
+.tag {
+  display: inline-block;
+  padding: 5px 10px;
+  margin: 3px;
+  background: rgba(0,198,255,0.2);
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 12px;
 }
 </style>
 </head>
 
 <body>
 
-<!-- FIXED TOP BAR -->
 <div class="topbar">
-
-  <div class="top-content">
-
-    <div class="brand">SkillHive</div>
-
-    <!-- OWNER PROFILE INSIDE BAR -->
-    <div class="owner-mini">
-      <img id="ownerImg">
-      <span id="ownerName"></span>
-    </div>
-
-    <!-- SEARCH -->
-    <input class="search" id="searchBox" placeholder="Search..." oninput="filterData()">
-
-    <!-- SKILL FILTER -->
-    <select id="skillFilter" onchange="filterData()">
-      <option value="">All Skills</option>
-    </select>
-
-  </div>
+  <div class="brand">SkillHive Neo</div>
+  <input id="search" placeholder="Search skills..." oninput="filter()" style="padding:8px;border-radius:10px;border:none;">
 </div>
 
-<!-- USERS -->
-<div class="container" id="users"></div>
+<div class="layout">
+
+  <!-- LEFT PANEL -->
+  <div class="panel owner">
+    <h3>Your Profile</h3>
+    <img id="ownerImg">
+    <p id="ownerName"></p>
+  </div>
+
+  <!-- CENTER FEED -->
+  <div class="panel">
+    <div id="feed"></div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="panel">
+    <h3>Trending Skills</h3>
+    <div id="skills"></div>
+  </div>
+
+</div>
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
+let users = [];
 const currentUser = JSON.parse(localStorage.getItem("user"));
-let allUsers = [];
 
-if (!currentUser) {
-  window.location.href = "login.html";
+if (!currentUser) window.location.href = "login.html";
+
+/* OWNER */
+function loadOwner() {
+  document.getElementById("ownerName").innerText = currentUser.username;
+
+  let img = currentUser["upload profile photo"] || "";
+  const id = img.match(/[-\w]{25,}/);
+  if (id) img = "https://drive.google.com/thumbnail?id=" + id;
+
+  document.getElementById("ownerImg").src = img;
 }
 
-/* OWNER HEADER */
-function setOwner() {
-  document.getElementById("ownerName").innerText = currentUser.username || "User";
+/* LOAD USERS */
+async function load() {
+  const res = await fetch(API_URL);
+  users = await res.json();
 
-  let photo = currentUser["upload profile photo"] || "";
-  const match = photo.match(/[-\w]{25,}/);
-
-  if (match) {
-    photo = "https://drive.google.com/thumbnail?id=" + match[0];
-  }
-
-  document.getElementById("ownerImg").src = photo || "";
+  render(users);
+  renderSkills(users);
 }
 
-/* REMOVE DUPLICATES */
-function removeDuplicates(users) {
-  const seen = new Set();
-  return users.filter(u => {
-    const key = (u.username || "").trim().toLowerCase();
-    if (!key || seen.has(key)) return false;
-    seen.add(key);
-    return true;
-  });
-}
+/* RENDER FEED */
+function render(list) {
+  const feed = document.getElementById("feed");
+  feed.innerHTML = "";
 
-/* BUILD SKILL DROPDOWN */
-function buildSkills(users) {
-  const select = document.getElementById("skillFilter");
-  const skills = new Set();
+  list.forEach(u => {
 
-  users.forEach(u => {
-    if (u.skill) skills.add(u.skill);
-  });
+    let img = u["upload profile photo"] || "";
+    const id = img.match(/[-\w]{25,}/);
+    if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
-  skills.forEach(s => {
-    const opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    select.appendChild(opt);
-  });
-}
-
-/* DISPLAY */
-function display(users) {
-  const container = document.getElementById("users");
-  container.innerHTML = "";
-
-  users.forEach(user => {
-
-    let photo = user["upload profile photo"] || "";
-    const match = photo.match(/[-\w]{25,}/);
-    if (match) {
-      photo = "https://drive.google.com/thumbnail?id=" + match[0];
-    }
-
-    const isOwner = user.username === currentUser.username;
-
-    container.innerHTML += `
-      <div class="card ${isOwner ? "owner" : ""}">
-        <img src="${photo}">
-        <h3>${user.username || "No Name"}</h3>
-        <p><b>Skill:</b> ${user.skill || "N/A"}</p>
-        <p><b>Experience:</b> ${user.experience || "N/A"}</p>
-        <p><b>Location:</b> ${user.location || "N/A"}</p>
-
-        ${!isOwner ? `<button onclick="bookUser('${user.username}')">Book Me</button>` : "<b>You</b>"}
+    feed.innerHTML += `
+      <div class="card">
+        <img class="user" src="${img}">
+        <h4>${u.username}</h4>
+        <p>${u.skill || ""}</p>
+        <button onclick="book('${u.username}')">Book</button>
       </div>
     `;
   });
 }
 
-/* FILTER */
-function filterData() {
-  const search = document.getElementById("searchBox").value.toLowerCase();
-  const skill = document.getElementById("skillFilter").value;
+/* SKILLS */
+function renderSkills(list) {
+  const box = document.getElementById("skills");
+  const set = new Set();
 
-  const filtered = allUsers.filter(u => {
-    return (
-      (u.username || "").toLowerCase().includes(search) &&
-      (skill === "" || u.skill === skill)
-    );
+  list.forEach(u => {
+    if (u.skill) set.add(u.skill);
   });
 
-  display(filtered);
+  set.forEach(s => {
+    box.innerHTML += `<div class="tag" onclick="filterSkill('${s}')">${s}</div>`;
+  });
+}
+
+/* FILTER */
+function filter() {
+  const q = document.getElementById("search").value.toLowerCase();
+  render(users.filter(u => (u.username||"").toLowerCase().includes(q)));
+}
+
+function filterSkill(skill) {
+  render(users.filter(u => u.skill === skill));
 }
 
 /* BOOK */
-function bookUser(name) {
-  alert(currentUser.username + " booked " + name + " ✔");
-}
-
-/* LOAD */
-async function loadUsers() {
-  const res = await fetch(API_URL);
-  const data = await res.json();
-
-  const unique = removeDuplicates(data);
-
-  allUsers = unique;
-
-  buildSkills(unique);
-  display(unique);
+function book(name) {
+  alert(currentUser.username + " booked " + name);
 }
 
 /* INIT */
-setOwner();
-loadUsers();
+loadOwner();
+load();
 
 </script>
 
