@@ -12,28 +12,27 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
 }
 
 .card {
-  background: purple;
-  backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
   padding: 30px;
   width: 320px;
   border-radius: 18px;
   text-align: center;
   color: white;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
 }
 
 h1 {
-  font-size: 26px;
+  font-size: 24px;
   margin-bottom: 10px;
 }
 
 p {
   font-size: 14px;
-  opacity: 0.8;
+  opacity: 0.9;
   margin-bottom: 20px;
 }
 
@@ -53,8 +52,14 @@ button {
 }
 
 .signup {
-  background: #00c6ff;
+  background: #ff4b2b;
   color: white;
+}
+
+.footer {
+  margin-top: 10px;
+  font-size: 11px;
+  opacity: 0.8;
 }
 </style>
 </head>
@@ -67,17 +72,20 @@ button {
 
   <button class="login" onclick="goLogin()">Login</button>
   <button class="signup" onclick="goSignup()">Sign Up</button>
-  © 2026 SkillHive | Privacy Policy | Terms
-        </div>
-    </div>
+
+  <div class="footer">
+    © 2026 SkillHive | Privacy Policy | Terms
+  </div>
 </div>
 
 <script>
 
+// ✅ Login page
 function goLogin() {
   window.location.href = "login.html";
 }
 
+// ✅ Your Google Form signup link
 function goSignup() {
   window.location.href = "https://forms.gle/caxjKmM2d7jTNMf96";
 }
