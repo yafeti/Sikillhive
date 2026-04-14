@@ -12,17 +12,26 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  background: white;
+  background: linear-gradient(135deg, #0f0f0f, #2b2b2b);
 }
 
 .card {
-  background: purple;
-  backdrop-filter: blur(12px);
+  background: linear-gradient(135deg, #6a11cb, #2575fc);
   padding: 30px;
   width: 320px;
   border-radius: 18px;
   text-align: center;
   color: white;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+h2 {
+  margin-bottom: 10px;
+}
+
+p {
+  font-size: 13px;
+  opacity: 0.9;
 }
 
 input {
@@ -31,6 +40,7 @@ input {
   margin: 10px 0;
   border: none;
   border-radius: 10px;
+  outline: none;
 }
 
 button {
@@ -39,14 +49,30 @@ button {
   margin-top: 10px;
   border: none;
   border-radius: 10px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.login-btn {
   background: #00c6ff;
   color: white;
-  font-weight: bold;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid white;
+  color: white;
 }
 
 #msg {
   font-size: 13px;
   margin-top: 10px;
+}
+
+.footer {
+  margin-top: 10px;
+  font-size: 11px;
+  opacity: 0.8;
 }
 </style>
 </head>
@@ -55,20 +81,31 @@ button {
 
 <div class="card">
   <h2>Welcome Back</h2>
+  <p>Login to continue to SkillHive</p>
 
   <input type="text" id="username" placeholder="Username">
   <input type="password" id="password" placeholder="Password">
 
-  <button onclick="login()">Login</button>
+  <button class="login-btn" onclick="login()">Login</button>
+  <button class="back-btn" onclick="goHome()">Back</button>
 
   <p id="msg"></p>
-  &copy; Skilhive 2026 all rights reserved
+
+  <div class="footer">
+    &copy; SkillHive 2026 — All rights reserved
+  </div>
 </div>
 
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
+// Back to home
+function goHome() {
+  window.location.href = "index.html";
+}
+
+// Login logic
 async function login() {
   const username = document.getElementById("username").value;
   const password = document.getElementById("password").value;
