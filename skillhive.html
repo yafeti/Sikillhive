@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkillHive Login</title>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: white;
+}
+
+.card {
+  background: purple;
+  backdrop-filter: blur(12px);
+  padding: 30px;
+  width: 320px;
+  border-radius: 18px;
+  text-align: center;
+  color: white;
+}
+
+input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 10px;
+}
+
+button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  background: #00c6ff;
+  color: white;
+  font-weight: bold;
+}
+
+#msg {
+  font-size: 13px;
+  margin-top: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="card">
+  <h2>Welcome Back</h2>
+
+  <input type="text" id="username" placeholder="Username">
+  <input type="password" id="password" placeholder="Password">
+
+  <button onclick="login()">Login</button>
+
+  <p id="msg"></p>
+  &copy; Skilhive 2026 all rights reserved
+</div>
+
+<script>
+
+const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
+
+async function login() {
+  const username = document.getElementById("username").value;
+  const password = document.getElementById("password").value;
+  const msg = document.getElementById("msg");
+
+  if (!username || !password) {
+    msg.innerText = "Please fill all fields";
+    return;
+  }
+
+  msg.innerText = "Checking...";
+
+  try {
+    const res = await fetch(API_URL);
+    const users = await res.json();
+
+    const user = users.find(u =>
+      u.username === username && u.password === password
+    );
+
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+      msg.innerText = "Login successful ✔";
+
+      setTimeout(() => {
+        window.location.href = "dashboard.html";
+      }, 1000);
+
+    } else {
+      msg.innerText = "Invalid username or password ❌";
+    }
+
+  } catch (err) {
+    msg.innerText = "Server error";
+    console.error(err);
+  }
+}
+
+</script>
+
+</body>
+</html>
