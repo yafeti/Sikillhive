@@ -2,125 +2,131 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillHive</title>
+<title>SkillHive Network</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: #f3f3f3;
+  background: #f4f6f9;
 }
 
-/* TOP BAR */
+/* ===== TOP BAR (FIXED + BIG + RESPONSIVE) ===== */
 .topbar {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: white;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  background: #d35400;
-  padding: 12px;
-  color: white;
-  position: sticky;
-  top: 0;
-}
-
-.search {
-  width: 60%;
-  padding: 8px;
-  border-radius: 20px;
-  border: none;
-  outline: none;
-}
-
-.menu {
-  font-size: 24px;
-  cursor: pointer;
-}
-
-/* MAIN CONTAINER */
-.container {
-  padding: 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-}
-
-/* MAIN CARD (FULL WIDTH) */
-.card {
-  background: #d35400;
   padding: 15px;
-  border-radius: 20px;
-  color: white;
+  gap: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
 }
 
-.card img {
-  width: 90px;
-  height: 90px;
+.brand {
+  font-weight: bold;
+  color: #1877f2;
+  font-size: 18px;
+}
+
+/* OWNER */
+.owner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner img {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
 }
 
-/* WHY SECTION */
-.why {
-  background: white;
-  color: black;
+/* INPUTS */
+input {
   padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-/* BUTTON */
-button {
-  width: 100%;
-  padding: 10px;
-  border: none;
   border-radius: 15px;
-  background: #ff6f00;
-  color: white;
-  font-size: 16px;
-  margin-top: 10px;
+  border: 1px solid #ddd;
+  width: 180px;
 }
 
-/* TRENDING */
-.trending {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 10px;
-}
-
-.trend-card {
-  background: white;
-  height: 80px;
-  border-radius: 10px;
-}
-
-/* MEMBERS LIST */
-.members {
-  display: grid;
-  gap: 10px;
-}
-
-.member-card {
-  background: white;
+select {
   padding: 10px;
   border-radius: 10px;
+  border: 1px solid #ddd;
+}
+
+button {
+  padding: 10px 12px;
+  border: none;
+  border-radius: 10px;
+  background: #1877f2;
+  color: white;
+  cursor: pointer;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+  padding: 10px;
+  max-width: 700px;
+  margin: auto;
+  margin-top: 120px;
+}
+
+/* SECTION TITLE */
+.section-title {
+  font-weight: bold;
+  margin: 15px 0 10px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
 
-.member-card img {
+.card img {
   width: 50px;
   height: 50px;
   border-radius: 50%;
 }
 
-/* RESPONSIVE */
-@media(max-width: 768px) {
-  .trending {
-    grid-template-columns: repeat(2, 1fr);
+.add-btn {
+  margin-left: auto;
+}
+
+/* POSTS */
+.post {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
   }
 
-  .search {
-    width: 50%;
+  input, select, button {
+    width: 100%;
+  }
+
+  .owner {
+    justify-content: center;
   }
 }
 </style>
@@ -130,91 +136,174 @@ button {
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div><b>SkillHive</b></div>
-  <input class="search" placeholder="Search here.....">
-  <div class="menu">☰</div>
+
+  <div class="brand">SkillHive</div>
+
+  <div class="owner">
+    <img id="ownerImg">
+    <span id="ownerName"></span>
+  </div>
+
+  <input placeholder="Search..." oninput="search(this.value)">
+
+  <select id="skills" onchange="filterSkill(this.value)">
+    <option value="">All Skills</option>
+  </select>
+
+  <button onclick="openInbox()">Inbox</button>
+  <button onclick="logout()">Logout</button>
+
 </div>
 
 <!-- MAIN -->
 <div class="container">
 
-  <!-- MAIN CARD (FULL WIDTH) -->
-  <div class="card">
-    <img id="mainImg">
-    <h2 id="mainName"></h2>
+  <div class="section-title">⭐ Featured SkillMen</div>
+  <div id="featured"></div>
 
-    <p><b>Experience:</b> 3 years</p>
-    <p><b>Location:</b> Mitundu</p>
-    <p><b>Portfolio:</b> unavailable</p>
+  <div class="section-title">📝 Posts / Status</div>
+  <div id="posts"></div>
 
-    <div class="why">
-      <h4>Why you?</h4>
-      <p>short description of why you should be chosen</p>
-    </div>
-
-    <button>Book Us</button>
-  </div>
-
-  <!-- TRENDING -->
-  <h3>Trending Skills</h3>
-  <div class="trending">
-    <div class="trend-card"></div>
-    <div class="trend-card"></div>
-    <div class="trend-card"></div>
-    <div class="trend-card"></div>
-  </div>
-
-  <!-- OTHER MEMBERS -->
-  <h3>Other Registered Members</h3>
-  <div class="members" id="membersList"></div>
+  <div class="section-title">👥 All Members</div>
+  <div id="members"></div>
 
 </div>
 
 <script>
 
-const user = JSON.parse(localStorage.getItem("user"));
+const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
-if (!user) {
+let users = [];
+const currentUser = JSON.parse(localStorage.getItem("user"));
+
+if (!currentUser) window.location.href = "login.html";
+
+/* OWNER */
+function loadOwner() {
+  document.getElementById("ownerName").innerText = currentUser.username;
+
+  let img = currentUser["upload profile photo"] || "";
+  const id = img.match(/[-\w]{25,}/);
+  if (id) img = "https://drive.google.com/thumbnail?id=" + id;
+
+  document.getElementById("ownerImg").src = img;
+}
+
+/* LOAD DATA */
+async function load() {
+  const res = await fetch(API_URL);
+  users = await res.json();
+
+  renderSkills();
+  render();
+  renderPosts(users);
+}
+
+/* SKILLS */
+function renderSkills() {
+  const select = document.getElementById("skills");
+  const set = new Set();
+
+  users.forEach(u => {
+    if (u.skill) set.add(u.skill);
+  });
+
+  set.forEach(s => {
+    let opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
+}
+
+/* MAIN FEED */
+function render(list = users) {
+
+  const featured = document.getElementById("featured");
+  const members = document.getElementById("members");
+
+  featured.innerHTML = "";
+  members.innerHTML = "";
+
+  list.forEach(u => {
+
+    let img = u["upload profile photo"] || "";
+    const id = img.match(/[-\w]{25,}/);
+    if (id) img = "https://drive.google.com/thumbnail?id=" + id;
+
+    const card = `
+      <div class="card">
+        <img src="${img}">
+        <div>
+          <b>${u.username}</b><br>
+          <small>${u.skill || ""}</small>
+        </div>
+
+        <button class="add-btn" onclick="addBusiness('${u.username}')">
+          Add Business
+        </button>
+      </div>
+    `;
+
+    if (u.skill && u.skill.length > 5) {
+      featured.innerHTML += card;
+    }
+
+    members.innerHTML += card;
+  });
+}
+
+/* POSTS */
+function renderPosts(list) {
+  const posts = document.getElementById("posts");
+  posts.innerHTML = "";
+
+  list.forEach(u => {
+    if (u.status || u.post) {
+      posts.innerHTML += `
+        <div class="post">
+          <b>${u.username}</b><br>
+          <small>${u.status || u.post}</small>
+        </div>
+      `;
+    }
+  });
+}
+
+/* SEARCH */
+function search(q) {
+  q = q.toLowerCase();
+  render(users.filter(u =>
+    (u.username || "").toLowerCase().includes(q) ||
+    (u.skill || "").toLowerCase().includes(q)
+  ));
+}
+
+/* FILTER SKILL */
+function filterSkill(skill) {
+  if (!skill) return render(users);
+  render(users.filter(u => u.skill === skill));
+}
+
+/* BUSINESS */
+function addBusiness(name) {
+  alert(currentUser.username + " sent business request to " + name);
+}
+
+/* INBOX */
+function openInbox() {
+  alert("Inbox coming soon");
+}
+
+/* LOGOUT */
+function logout() {
+  localStorage.removeItem("user");
   window.location.href = "login.html";
 }
 
-// MAIN USER DATA
-document.getElementById("mainName").innerText = user.username || "";
-
-// IMAGE FIX (Google Drive)
-let img = user["upload profile photo"] || "";
-const id = img.match(/[-\w]{25,}/);
-if (id) {
-  img = "https://drive.google.com/thumbnail?id=" + id;
-}
-
-document.getElementById("mainImg").src = img;
-
-
-/* OPTIONAL: LOAD OTHER USERS */
-let users = JSON.parse(localStorage.getItem("users")) || [];
-let container = document.getElementById("membersList");
-
-users.forEach(u => {
-  let img = u["upload profile photo"] || "";
-  const id = img.match(/[-\w]{25,}/);
-  if (id) {
-    img = "https://drive.google.com/thumbnail?id=" + id;
-  }
-
-  let div = document.createElement("div");
-  div.className = "member-card";
-
-  div.innerHTML = `
-    <img src="${img}">
-    <div>
-      <b>${u.username || "No Name"}</b><br>
-      <small>${u.skill || ""}</small>
-    </div>
-  `;
-
-  container.appendChild(div);
-});
+/* INIT */
+loadOwner();
+load();
 
 </script>
 
