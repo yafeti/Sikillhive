@@ -273,4 +273,39 @@ function renderPosts(list) {
 /* SEARCH */
 function search(q) {
   q = q.toLowerCase();
-  render(users.filter(u
+  render(users.filter(u =>
+    (u.username || "").toLowerCase().includes(q) ||
+    (u.skill || "").toLowerCase().includes(q)
+  ));
+}
+
+/* FILTER SKILL */
+function filterSkill(skill) {
+  if (!skill) return render(users);
+  render(users.filter(u => u.skill === skill));
+}
+
+/* BUSINESS */
+function addBusiness(name) {
+  alert(currentUser.username + " sent business request to " + name);
+}
+
+/* INBOX */
+function openInbox() {
+  alert("Inbox coming soon");
+}
+
+/* LOGOUT */
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
+}
+
+/* INIT */
+loadOwner();
+load();
+
+</script>
+
+</body>
+</html>
