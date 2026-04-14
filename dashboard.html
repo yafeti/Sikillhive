@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillHive</title>
+<title>SkillHive Network</title>
 
 <style>
 body {
@@ -13,70 +13,55 @@ body {
 
 /* TOP BAR */
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  width: 100%;
   background: white;
-  padding: 12px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+  justify-content: space-between;
+  padding: 10px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  z-index: 1000;
 }
 
+/* LEFT BRAND */
 .brand {
   font-weight: bold;
   color: #1877f2;
 }
 
+/* OWNER CARD */
+.owner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.owner img {
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+}
+
 /* SEARCH */
 input {
-  padding: 8px;
-  border-radius: 20px;
-  border: 1px solid #ddd;
-  width: 160px;
-}
-
-/* FEED */
-.container {
-  padding: 10px;
-  max-width: 600px;
-  margin: auto;
-}
-
-/* CARD */
-.card {
-  background: white;
-  padding: 15px;
+  padding: 7px;
   border-radius: 15px;
-  margin-top: 12px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-  display: flex;
-  gap: 12px;
-  align-items: center;
+  border: 1px solid #ddd;
+  width: 150px;
 }
 
-/* IMAGE */
-img {
-  width: 55px;
-  height: 55px;
-  border-radius: 50%;
-  object-fit: cover;
+/* DROPDOWN */
+select {
+  padding: 7px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
 }
 
-/* TEXT */
-.name {
-  font-weight: bold;
-}
-
-.small {
-  font-size: 13px;
-  color: #666;
-}
-
-/* BUTTON */
+/* BUTTONS */
 button {
-  margin-left: auto;
-  padding: 8px 12px;
+  padding: 7px 10px;
   border: none;
   border-radius: 10px;
   background: #1877f2;
@@ -84,20 +69,78 @@ button {
   cursor: pointer;
 }
 
-.owner {
-  border-left: 4px solid #1877f2;
+/* LAYOUT */
+.container {
+  padding: 10px;
+  max-width: 700px;
+  margin: auto;
+  margin-top: 80px;
+}
+
+/* SECTION */
+.section-title {
+  font-weight: bold;
+  margin: 15px 0 10px;
+}
+
+/* CARD */
+.card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+/* IMAGE */
+.card img {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+}
+
+/* ADD BUSINESS */
+.add-btn {
+  margin-left: auto;
 }
 </style>
 </head>
 
 <body>
 
+<!-- TOP BAR -->
 <div class="topbar">
+
   <div class="brand">SkillHive</div>
+
+  <div class="owner">
+    <img id="ownerImg">
+    <span id="ownerName"></span>
+  </div>
+
   <input placeholder="Search..." oninput="search(this.value)">
+
+  <select id="skills" onchange="filterSkill(this.value)">
+    <option value="">All Skills</option>
+  </select>
+
+  <button onclick="openInbox()">Inbox</button>
+  <button onclick="logout()">Logout</button>
+
 </div>
 
-<div class="container" id="feed"></div>
+<div class="container">
+
+  <div class="section-title">⭐ Featured SkillMen</div>
+  <div id="featured"></div>
+
+  <div class="section-title">👥 All Members</div>
+  <div id="members"></div>
+
+</div>
 
 <script>
 
@@ -108,17 +151,51 @@ const currentUser = JSON.parse(localStorage.getItem("user"));
 
 if (!currentUser) window.location.href = "login.html";
 
+/* OWNER */
+function loadOwner() {
+  document.getElementById("ownerName").innerText = currentUser.username;
+
+  let img = currentUser["upload profile photo"] || "";
+  const id = img.match(/[-\w]{25,}/);
+  if (id) img = "https://drive.google.com/thumbnail?id=" + id;
+
+  document.getElementById("ownerImg").src = img;
+}
+
 /* LOAD */
 async function load() {
   const res = await fetch(API_URL);
   users = await res.json();
-  render(users);
+
+  renderSkills();
+  render();
+}
+
+/* SKILLS DROPDOWN */
+function renderSkills() {
+  const select = document.getElementById("skills");
+  const set = new Set();
+
+  users.forEach(u => {
+    if (u.skill) set.add(u.skill);
+  });
+
+  set.forEach(s => {
+    let opt = document.createElement("option");
+    opt.value = s;
+    opt.textContent = s;
+    select.appendChild(opt);
+  });
 }
 
 /* RENDER */
-function render(list) {
-  const feed = document.getElementById("feed");
-  feed.innerHTML = "";
+function render(list = users) {
+
+  const featured = document.getElementById("featured");
+  const members = document.getElementById("members");
+
+  featured.innerHTML = "";
+  members.innerHTML = "";
 
   list.forEach(u => {
 
@@ -126,22 +203,27 @@ function render(list) {
     const id = img.match(/[-\w]{25,}/);
     if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
-    const isOwner =
-      (u.username || "").trim().toLowerCase() ===
-      (currentUser.username || "").trim().toLowerCase();
+    const isFeatured = u.skill && u.skill.length > 5;
 
-    feed.innerHTML += `
-      <div class="card ${isOwner ? "owner" : ""}">
+    const card = `
+      <div class="card">
         <img src="${img}">
         <div>
-          <div class="name">${u.username || "No Name"}</div>
-          <div class="small">${u.skill || "No skill"}</div>
-          <div class="small">${u.location || ""}</div>
+          <b>${u.username}</b><br>
+          <small>${u.skill || ""}</small>
         </div>
 
-        ${!isOwner ? `<button onclick="book('${u.username}')">Book</button>` : ""}
+        <button class="add-btn" onclick="addBusiness('${u.username}')">
+          Add Business
+        </button>
       </div>
     `;
+
+    if (isFeatured) {
+      featured.innerHTML += card;
+    }
+
+    members.innerHTML += card;
   });
 }
 
@@ -154,12 +236,30 @@ function search(q) {
   ));
 }
 
-/* BOOK */
-function book(name) {
-  alert(currentUser.username + " booked " + name);
+/* FILTER */
+function filterSkill(skill) {
+  if (!skill) return render(users);
+  render(users.filter(u => u.skill === skill));
+}
+
+/* BUSINESS REQUEST */
+function addBusiness(name) {
+  alert(currentUser.username + " sent business request to " + name);
+}
+
+/* INBOX */
+function openInbox() {
+  alert("Inbox feature coming soon");
+}
+
+/* LOGOUT */
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
 }
 
 /* INIT */
+loadOwner();
 load();
 
 </script>
