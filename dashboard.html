@@ -15,18 +15,9 @@ body {
 .topbar {
   display: flex;
   justify-content: space-between;
-  align-items: center;
   background: #8e44ad;
   color: white;
   padding: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 999;
-}
-
-.menu {
-  font-size: 24px;
-  cursor: pointer;
 }
 
 /* SIDEBAR */
@@ -40,29 +31,23 @@ body {
   padding: 15px;
   transition: 0.3s;
   overflow-y: auto;
-  z-index: 1000;
 }
 
 .sidebar.active { right: 0; }
 
-.skill-item {
-  padding: 8px;
-  margin: 5px 0;
+.item {
   background: #f3e9fb;
+  padding: 8px;
+  margin-bottom: 6px;
   border-radius: 8px;
-  cursor: pointer;
-}
-
-.skill-item:hover {
-  background: #e1c9f3;
 }
 
 /* PROFILE */
 .profile {
   background: #a569bd;
   color: white;
-  margin: 10px;
   padding: 15px;
+  margin: 10px;
   border-radius: 15px;
 }
 
@@ -85,18 +70,35 @@ button {
   color: white;
 }
 
-/* FEED */
-.feed {
-  display: grid;
-  grid-template-columns: repeat(2,1fr);
-  gap: 10px;
+/* CHAT */
+.chat {
+  position: fixed;
+  bottom: 0;
+  right: 10px;
+  width: 300px;
+  height: 400px;
+  background: white;
+  display: none;
+  flex-direction: column;
+}
+
+.chatHead {
+  background: #8e44ad;
+  color: white;
   padding: 10px;
 }
 
-.card {
-  background: white;
+.chatBody {
+  flex: 1;
+  overflow-y: auto;
   padding: 10px;
-  border-radius: 10px;
+}
+
+.chatMsg {
+  background: #eee;
+  margin: 5px 0;
+  padding: 5px;
+  border-radius: 6px;
 }
 
 </style>
@@ -106,23 +108,17 @@ button {
 
 <div class="topbar">
   <b>SkillHive</b>
-  <div class="menu" onclick="toggleMenu()">☰</div>
+  <div onclick="toggleMenu()">☰</div>
 </div>
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="menu">
 
-  <h3>📌 Skills</h3>
-  <div class="skill-item" onclick="filterSkill('ALL')">🌐 All Skills</div>
+  <h3>📩 Requests</h3>
+  <div id="requests"></div>
 
-  <div id="skills"></div>
-
-  <hr>
-
-  <h3>Notifications</h3>
-  <div id="notifications"></div>
-
-  <hr>
+  <h3>🔔 Notifications</h3>
+  <div id="notes"></div>
 
   <button onclick="logout()" style="background:red;">Logout</button>
 </div>
@@ -131,32 +127,31 @@ button {
 <div class="profile">
   <h3 id="name"></h3>
   <p id="skill"></p>
-
-  <p>🔥 Hires: <span id="hireCount">0</span></p>
-  <p>🔎 Seeks: <span id="seekCount">0</span></p>
-
-  <button onclick="addSeek()">➕ Add Seek</button>
 </div>
 
-<!-- FEED -->
-<h3 style="padding:10px;">Seek Feed</h3>
-<div class="feed" id="feed"></div>
-
 <!-- USERS -->
-<h3 style="padding:10px;">Skilled Men</h3>
 <div id="users"></div>
+
+<!-- CHAT -->
+<div class="chat" id="chatBox">
+  <div class="chatHead" id="chatTitle"></div>
+  <div class="chatBody" id="chatBody"></div>
+  <input id="msg" placeholder="Message..." style="width:100%">
+  <button onclick="sendMsg()">Send</button>
+</div>
 
 <script>
 
 let currentUser = JSON.parse(localStorage.getItem("user"));
 if(!currentUser) location.href="login.html";
 
-let users = [];
-let seeks = JSON.parse(localStorage.getItem("seeks")||"[]");
-let hires = JSON.parse(localStorage.getItem("hires")||"[]");
-let notifications = JSON.parse(localStorage.getItem("notes")||"[]");
+let users=[];
+let requests=JSON.parse(localStorage.getItem("requests")||"[]");
+let notes=JSON.parse(localStorage.getItem("notes")||"[]");
+let chats=JSON.parse(localStorage.getItem("chats")||"[]");
+let messages=JSON.parse(localStorage.getItem("messages")||"[]");
 
-let activeSkillFilter = "ALL";
+let activeChat=null;
 
 /* MENU */
 function toggleMenu(){
@@ -168,127 +163,110 @@ function logout(){
   location.href="login.html";
 }
 
-/* SEEK */
-function addSeek(){
-  let text = prompt("What are you seeking?");
-  if(!text) return;
-
-  seeks.push({who:currentUser.username,seek:text});
-  localStorage.setItem("seeks",JSON.stringify(seeks));
-  renderAll();
-}
-
-/* FILTER SKILL CLICK */
-function filterSkill(skill){
-  activeSkillFilter = skill;
-  renderUsers();
-}
-
-/* HIRE */
+/* SEND REQUEST */
 function hireUser(name){
 
-  if(name === currentUser.username){
-    alert("You cannot hire yourself");
+  if(name===currentUser.username){
+    alert("Cannot hire yourself");
     return;
   }
 
-  hires.push({from:currentUser.username,to:name});
-  localStorage.setItem("hires",JSON.stringify(hires));
+  requests.push({
+    from:currentUser.username,
+    to:name,
+    status:"pending"
+  });
 
-  addNote(`${currentUser.username} hired ${name}`);
+  save();
   renderAll();
 }
 
-/* NOTES */
-function addNote(text){
-  notifications.push(text);
-  localStorage.setItem("notes",JSON.stringify(notifications));
+/* ACCEPT */
+function accept(i){
+
+  let r=requests[i];
+  r.status="accepted";
+
+  chats.push([r.from,r.to]);
+
+  notes.push(`✅ ${r.to} accepted ${r.from}`);
+
+  save();
+  renderAll();
 }
 
-/* SKILLS */
-function renderSkills(){
+/* REJECT */
+function reject(i){
 
-  let set = new Set(users.map(u=>u.skill));
+  let r=requests[i];
+  r.status="rejected";
 
-  document.getElementById("skills").innerHTML =
-    [...set].map(s=>`
-      <div class="skill-item" onclick="filterSkill('${s}')">
-        ${s}
-      </div>
-    `).join("");
+  notes.push(`❌ ${r.to} rejected ${r.from}`);
+
+  save();
+  renderAll();
 }
 
-/* USERS (FILTERED) */
-function renderUsers(){
+/* CHECK CHAT */
+function canChat(user){
+  return chats.some(c=>c.includes(currentUser.username)&&c.includes(user));
+}
 
-  let list = users;
+/* OPEN CHAT */
+function openChat(user){
 
-  if(activeSkillFilter !== "ALL"){
-    list = users.filter(u => u.skill === activeSkillFilter);
+  if(!canChat(user)){
+    alert("Chat locked. Wait for acceptance.");
+    return;
   }
 
-  document.getElementById("users").innerHTML =
-    list.map(u=>`
-      <div class="user">
-        <b>${u.username}</b><br>
-        ${u.skill}
-        <button onclick="hireUser('${u.username}')">Hire</button>
-      </div>
-    `).join("");
+  activeChat=user;
+  document.getElementById("chatBox").style.display="flex";
+  document.getElementById("chatTitle").innerText="Chat with "+user;
+
+  renderChat();
 }
 
-/* FEED */
-function renderFeed(){
+/* SEND MESSAGE */
+function sendMsg(){
 
-  document.getElementById("feed").innerHTML =
-    seeks.map(s=>`
-      <div class="card">
-        <b>${s.who}</b><br>
-        ${s.seek}
-      </div>
-    `).join("");
+  let text=document.getElementById("msg").value;
+  if(!text) return;
+
+  messages.push({
+    from:currentUser.username,
+    to:activeChat,
+    text:text
+  });
+
+  save();
+  renderChat();
 }
 
-/* NOTIFICATIONS */
-function renderNotes(){
+/* RENDER CHAT */
+function renderChat(){
 
-  document.getElementById("notifications").innerHTML =
-    notifications.slice(-10).map(n=>`<div class="skill-item">${n}</div>`).join("");
+  let box=document.getElementById("chatBody");
+  box.innerHTML="";
+
+  messages.filter(m=>
+    (m.from===currentUser.username&&m.to===activeChat)||
+    (m.from===activeChat&&m.to===currentUser.username)
+  ).forEach(m=>{
+    box.innerHTML+=`<div class="chatMsg"><b>${m.from}:</b> ${m.text}</div>`;
+  });
 }
 
-/* COUNTS */
-function updateCounts(){
+/* REQUESTS UI */
+function renderRequests(){
 
-  document.getElementById("hireCount").innerText =
-    hires.filter(h=>h.to===currentUser.username).length;
+  let my=requests.filter(r=>r.to===currentUser.username);
 
-  document.getElementById("seekCount").innerText = seeks.length;
-}
-
-/* MASTER */
-function renderAll(){
-  renderSkills();
-  renderUsers();
-  renderFeed();
-  renderNotes();
-  updateCounts();
-}
-
-/* LOAD */
-async function load(){
-
-  let res = await fetch("https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec");
-  users = await res.json();
-
-  document.getElementById("name").innerText = currentUser.username;
-  document.getElementById("skill").innerText = currentUser.skill || "";
-
-  renderAll();
-}
-
-load();
-
-</script>
-
-</body>
-</html>
+  document.getElementById("requests").innerHTML =
+    my.map((r,i)=>`
+      <div class="item">
+        <b>${r.from}</b> wants to hire you<br>
+        Status: ${r.status}
+        ${r.status==="pending" ? `
+          <button onclick="accept(${i})">Confirm</button>
+          <button onclick="reject(${
