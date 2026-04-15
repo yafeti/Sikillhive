@@ -35,7 +35,6 @@ body {
   font-size: 24px;
   cursor: pointer;
   padding: 8px 12px;
-  border-radius: 8px;
 }
 
 /* SIDEBAR */
@@ -57,14 +56,12 @@ body {
   right: 0;
 }
 
-.skill-item {
-  padding: 10px;
-  border-bottom: 1px solid #ddd;
-}
-
-/* MAIN */
-.container {
-  padding: 10px;
+.menu-msg {
+  background: #f4e9fb;
+  padding: 8px;
+  border-radius: 10px;
+  margin-bottom: 8px;
+  font-size: 13px;
 }
 
 /* PROFILE */
@@ -75,7 +72,6 @@ body {
   color: white;
   position: sticky;
   top: 70px;
-  z-index: 10;
 }
 
 .profile-box img {
@@ -91,80 +87,9 @@ body {
   margin-top: 10px;
 }
 
-.action-row button {
-  flex: 1;
-  background: linear-gradient(135deg, #8e44ad, #a569bd);
-}
-
-.hires-box {
-  flex: 1;
-  background: white;
-  color: black;
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-  font-weight: bold;
-}
-
-/* WHY */
-.why {
-  background: white;
-  color: black;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-/* TRENDING */
-.trend-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-
-.trend-card {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  text-align: center;
-}
-
-/* SEEK */
-.seek {
-  background: white;
-  padding: 10px;
-  border-radius: 10px;
-  margin-top: 10px;
-}
-
-/* SEEK CARD */
-.seek-card {
-  background: white;
-  padding: 12px;
-  border-radius: 12px;
-  margin-top: 10px;
-}
-
-/* USERS */
-.user-card {
-  background: #a569bd;
-  padding: 15px;
-  border-radius: 15px;
-  color: white;
-  margin-top: 10px;
-}
-
-.user-card img {
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-}
-
-/* BUTTONS */
 button {
-  margin-top: 10px;
-  padding: 12px;
   width: 100%;
+  padding: 12px;
   border: none;
   border-radius: 10px;
   background: linear-gradient(135deg, #8e44ad, #a569bd);
@@ -173,12 +98,42 @@ button {
   cursor: pointer;
 }
 
-/* MOBILE */
-@media(max-width: 768px) {
-  .trend-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
+/* LISTS */
+.container {
+  padding: 10px;
 }
+
+.seek-card, .user-card {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* HIRE REQUESTS */
+.req-box {
+  background: #f6f0fb;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 10px;
+}
+
+.req-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 8px;
+}
+
+.req-actions button {
+  padding: 8px;
+  font-size: 12px;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+  .search{width:55%;}
+}
+
 </style>
 </head>
 
@@ -192,18 +147,22 @@ button {
 
 <!-- SIDEBAR -->
 <div class="sidebar" id="menu">
-  <h3>Menu</h3>
 
+  <h3>Notifications</h3>
+
+  <div id="messages"></div>
+
+  <hr>
+
+  <h4>Available Skills</h4>
   <div id="skillList"></div>
 
   <hr>
 
-  <p>📩 Hire Requests: <span id="requestCount">0</span></p>
-  <p>🔎 Seeks: <span id="seekCount">0</span></p>
+  <p>📩 Requests: <span id="reqCount">0</span></p>
+  <p>🔥 Seeks: <span id="seekCount">0</span></p>
 
-  <hr>
-
-  <button onclick="logout()" style="background:#e74c3c;">
+  <button onclick="logout()" style="background:#e74c3c;margin-top:10px;">
     🚪 Logout
   </button>
 </div>
@@ -218,34 +177,17 @@ button {
     <p><b>Skill:</b> <span id="skill"></span></p>
     <p><b>Experience:</b> <span id="exp"></span></p>
     <p><b>Location:</b> <span id="loc"></span></p>
-    <p><b>Contact:</b> <span id="contact"></span></p>
 
     <div class="action-row">
-      <button onclick="openMessages()">💬 Messages</button>
-      <div class="hires-box">
-        Total Hires: <span id="hiresCount">0</span>
-      </div>
-    </div>
-
-    <div class="why">
-      <b>Why you?</b>
-      <p id="why"></p>
+      <button onclick="hireUser(currentUser.username)">💼 Hire Me</button>
     </div>
   </div>
 
-  <h3 class="section-title">Trending Skills</h3>
-  <div class="trend-grid" id="trends"></div>
-
-  <!-- NEW SEEK FORM LINK -->
-  <button onclick="window.open('https://forms.gle/JWRFFDkJmccfkkdy9','_blank')">
-    + Post Seek
-  </button>
-
-  <h3 class="section-title">🔥 Seeks Feed</h3>
+  <h3>🔥 Seeks</h3>
   <div id="seeks"></div>
 
-  <h3 class="section-title">Available SkillMen</h3>
-  <div id="others"></div>
+  <h3>👥 Users</h3>
+  <div id="users"></div>
 
 </div>
 
@@ -254,176 +196,152 @@ button {
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
 let allUsers = [];
+
 let seeks = JSON.parse(localStorage.getItem("seeks") || "[]");
 let requests = JSON.parse(localStorage.getItem("requests") || "[]");
+let messages = JSON.parse(localStorage.getItem("messages") || "[]");
 
 const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser) window.location.href = "login.html";
 
 /* MENU */
-function toggleMenu() {
+function toggleMenu(){
   document.getElementById("menu").classList.toggle("active");
 }
 
-function logout() {
+function logout(){
   localStorage.removeItem("user");
-  window.location.href = "login.html";
+  window.location.href="login.html";
 }
 
-/* MESSAGE */
-function openMessages() {
-  alert("Messaging will unlock after request is confirmed.");
-}
+/* ---------------- HIRE ---------------- */
+function hireUser(name){
 
-/* HIRE SYSTEM */
-function hireUser(name) {
-  requests.push({
+  const req = {
     from: currentUser.username,
     to: name,
     status: "pending",
-    time: new Date().toISOString()
+    time: Date.now()
+  };
+
+  requests.push(req);
+  localStorage.setItem("requests", JSON.stringify(requests));
+
+  renderRequests();
+}
+
+/* ACCEPT / REJECT */
+function acceptRequest(i){
+  requests[i].status = "accepted";
+  addMessage(`✅ Hire accepted by ${currentUser.username}`, requests[i].from);
+  saveAll();
+  renderRequests();
+}
+
+function rejectRequest(i){
+  requests[i].status = "rejected";
+  addMessage(`❌ Hire rejected by ${currentUser.username}`, requests[i].from);
+  saveAll();
+  renderRequests();
+}
+
+/* ---------------- MESSAGE ---------------- */
+function addMessage(text, to){
+  messages.push({
+    from: currentUser.username,
+    to: to,
+    text: text,
+    time: Date.now()
   });
 
-  localStorage.setItem("requests", JSON.stringify(requests));
-  updateCounts();
+  localStorage.setItem("messages", JSON.stringify(messages));
 }
 
-/* ACCEPT HIRE (SIMULATED CONFIRM) */
-function confirmHire(index) {
-  requests[index].status = "confirmed";
-  localStorage.setItem("requests", JSON.stringify(requests));
-  updateCounts();
-  alert("Request confirmed! You can now message each other.");
-}
+/* ---------------- RENDER REQUESTS ---------------- */
+function renderRequests(){
+  const box = document.getElementById("messages");
+  box.innerHTML = "";
 
-/* RENDER SEEKS */
-function renderSeeks() {
-  const container = document.getElementById("seeks");
-  container.innerHTML = "";
+  const myRequests = requests.filter(r => r.to === currentUser.username);
 
-  seeks.forEach(s => {
+  document.getElementById("reqCount").innerText = myRequests.length;
 
-    container.innerHTML += `
-      <div class="seek-card">
-        <h4>${s.whoSeek || "Unknown"}</h4>
-        <p><b>Seek:</b> ${s.seekWhat || ""}</p>
+  myRequests.forEach((r,i)=>{
 
-        ${s.photo ? `<img src="${s.photo}" style="width:80px;height:80px;border-radius:50%;">` : ""}
-
-        <button onclick="hireUser('${s.whoSeek}')">Respond</button>
+    box.innerHTML += `
+      <div class="req-box">
+        <b>${r.from}</b> wants to hire you
+        <div class="req-actions">
+          <button onclick="acceptRequest(${i})" style="background:green;">Accept</button>
+          <button onclick="rejectRequest(${i})" style="background:red;">Reject</button>
+        </div>
+        <small>Status: ${r.status}</small>
       </div>
     `;
   });
 }
 
-/* COUNTS */
-function updateCounts() {
+/* ---------------- SEEKS ---------------- */
+function renderSeeks(){
+  const box = document.getElementById("seeks");
+  box.innerHTML = "";
 
-  const reqCount = requests.filter(r => r.to === currentUser.username).length;
-  document.getElementById("requestCount").innerText = reqCount;
+  seeks.forEach(s=>{
+    box.innerHTML += `
+      <div class="seek-card">
+        <b>${s.who}</b><br>
+        ${s.seek}
+        ${s.photo ? `<br><img src="${s.photo}" width="60" height="60" style="border-radius:50%">` : ""}
+      </div>
+    `;
+  });
 
   document.getElementById("seekCount").innerText = seeks.length;
 }
 
-/* LOAD USERS */
-async function load() {
-  const res = await fetch(API_URL);
-  allUsers = await res.json();
+/* ---------------- USERS ---------------- */
+function renderUsers(){
+  const box = document.getElementById("users");
+  box.innerHTML = "";
 
-  const user = allUsers.find(u =>
-    (u.username || "").toLowerCase().trim() ===
-    (currentUser.username || "").toLowerCase().trim()
-  );
-
-  if (!user) return;
-
-  document.getElementById("name").innerText = user.username;
-  document.getElementById("skill").innerText = user.skill;
-  document.getElementById("exp").innerText = user.experience;
-  document.getElementById("loc").innerText = user.location;
-  document.getElementById("contact").innerText = user["phone number"];
-
-  document.getElementById("why").innerText =
-    user["why you"] || user["description"] || "No description";
-
-  let img = user["upload profile photo"] || "";
-  const id = img.match(/[-\w]{25,}/);
-  if (id) img = "https://drive.google.com/thumbnail?id=" + id;
-
-  document.getElementById("img").src = img;
-
-  renderSkills();
-  renderTrends();
-  renderUsers(allUsers);
-  renderSeeks();
-  updateCounts();
-}
-
-/* SKILLS */
-function renderSkills() {
-  const list = document.getElementById("skillList");
-  const skills = new Set();
-
-  allUsers.forEach(u => u.skill && skills.add(u.skill));
-
-  list.innerHTML = "";
-  skills.forEach(s => {
-    list.innerHTML += `<div class="skill-item">${s}</div>`;
-  });
-}
-
-/* TREND */
-function renderTrends() {
-  const trends = document.getElementById("trends");
-  const skills = new Set();
-
-  allUsers.forEach(u => u.skill && skills.add(u.skill));
-
-  trends.innerHTML = "";
-  skills.forEach(s => {
-    trends.innerHTML += `<div class="trend-card">${s}</div>`;
-  });
-}
-
-/* USERS */
-function renderUsers(list) {
-  const container = document.getElementById("others");
-  container.innerHTML = "";
-
-  list.forEach(u => {
-    if (u.username === currentUser.username) return;
-
-    let img = u["upload profile photo"] || "";
-    const id = img.match(/[-\w]{25,}/);
-    if (id) img = "https://drive.google.com/thumbnail?id=" + id;
-
-    container.innerHTML += `
+  allUsers.forEach(u=>{
+    box.innerHTML += `
       <div class="user-card">
-        <img src="${img}">
-        <h3>${u.username}</h3>
-        <p>${u.skill}</p>
-        <p>${u.location}</p>
-
+        <b>${u.username}</b><br>
+        ${u.skill}<br>
+        ${u.location}
         <button onclick="hireUser('${u.username}')">Hire</button>
       </div>
     `;
   });
 }
 
-/* SEARCH */
-function searchUsers(q) {
-  q = q.toLowerCase();
+/* ---------------- LOAD ---------------- */
+async function load(){
 
-  const filtered = allUsers.filter(u =>
-    (u.username || "").toLowerCase().includes(q) ||
-    (u.skill || "").toLowerCase().includes(q) ||
-    (u.location || "").toLowerCase().includes(q)
-  );
+  const res = await fetch(API_URL);
+  allUsers = await res.json();
 
-  renderUsers(filtered);
+  const me = allUsers.find(u => u.username === currentUser.username);
+
+  if(me){
+    document.getElementById("name").innerText = me.username;
+    document.getElementById("skill").innerText = me.skill;
+    document.getElementById("exp").innerText = me.experience;
+    document.getElementById("loc").innerText = me.location;
+  }
+
+  renderRequests();
+  renderSeeks();
+  renderUsers();
 }
 
 load();
+
+/* SAVE */
+function saveAll(){
+  localStorage.setItem("requests", JSON.stringify(requests));
+}
 
 </script>
 
