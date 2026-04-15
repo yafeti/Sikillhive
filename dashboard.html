@@ -2,131 +2,126 @@
 <html>
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SkillHive Network</title>
+<title>SkillHive</title>
 
 <style>
 body {
   margin: 0;
   font-family: Arial;
-  background: #f4f6f9;
+  background: #f3f3f3;
 }
 
-/* ===== TOP BAR (FIXED + BIG + RESPONSIVE) ===== */
+/* TOP BAR */
 .topbar {
-  position: fixed;
-  top: 0;
-  width: 100%;
-  background: white;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  padding: 15px;
-  gap: 10px;
-  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-  z-index: 1000;
-}
-
-.brand {
-  font-weight: bold;
-  color: #1877f2;
-  font-size: 18px;
-}
-
-/* OWNER */
-.owner {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.owner img {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-}
-
-/* INPUTS */
-input {
-  padding: 10px;
-  border-radius: 15px;
-  border: 1px solid #ddd;
-  width: 180px;
-}
-
-select {
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-}
-
-button {
-  padding: 10px 12px;
-  border: none;
-  border-radius: 10px;
-  background: #1877f2;
+  background: #d35400;
+  padding: 12px;
   color: white;
-  cursor: pointer;
+  position: sticky;
+  top: 0;
 }
 
-/* ===== MAIN CONTAINER ===== */
+.search {
+  width: 60%;
+  padding: 8px;
+  border-radius: 20px;
+  border: none;
+}
+
+.menu {
+  font-size: 24px;
+}
+
+/* MAIN */
 .container {
   padding: 10px;
-  max-width: 700px;
-  margin: auto;
-  margin-top: 120px;
 }
 
-/* SECTION TITLE */
-.section-title {
-  font-weight: bold;
-  margin: 15px 0 10px;
+/* PROFILE */
+.profile-box {
+  background: #e67e22;
+  padding: 15px;
+  border-radius: 15px;
+  color: white;
 }
 
-/* CARD */
-.card {
-  background: white;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-}
-
-.card img {
-  width: 50px;
-  height: 50px;
+.profile-box img {
+  width: 90px;
+  height: 90px;
   border-radius: 50%;
 }
 
-.add-btn {
-  margin-left: auto;
+/* WHY */
+.why {
+  background: white;
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
 }
 
-/* POSTS */
-.post {
+/* TRENDING */
+.trending {
+  margin-top: 15px;
+}
+
+.trend-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.trend-card {
   background: white;
-  padding: 12px;
-  border-radius: 12px;
-  margin-bottom: 10px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  padding: 15px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+/* OTHER USERS */
+.user-card {
+  background: #e67e22;
+  padding: 15px;
+  border-radius: 15px;
+  color: white;
+  margin-top: 10px;
+}
+
+.user-card img {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+}
+
+.user-card .why {
+  background: white;
+  color: black;
+  padding: 8px;
+  border-radius: 8px;
+  margin-top: 8px;
+}
+
+.book-btn {
+  margin-top: 10px;
+  padding: 10px;
+  width: 100%;
+  border: none;
+  border-radius: 10px;
+  background: #ff6f00;
+  color: white;
+  font-weight: bold;
 }
 
 /* MOBILE */
-@media (max-width: 768px) {
-  .topbar {
-    flex-direction: column;
-    align-items: stretch;
+@media(max-width: 768px) {
+  .search {
+    width: 50%;
   }
 
-  input, select, button {
-    width: 100%;
-  }
-
-  .owner {
-    justify-content: center;
+  .trend-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 </style>
@@ -134,38 +129,43 @@ button {
 
 <body>
 
-<!-- TOP BAR -->
+<!-- TOP -->
 <div class="topbar">
-
-  <div class="brand">SkillHive</div>
-
-  <div class="owner">
-    <img id="ownerImg">
-    <span id="ownerName"></span>
-  </div>
-
-  <input placeholder="Search..." oninput="search(this.value)">
-
-  <select id="skills" onchange="filterSkill(this.value)">
-    <option value="">All Skills</option>
-  </select>
-
-  <button onclick="openInbox()">Inbox</button>
-  <button onclick="logout()">Logout</button>
-
+  <b>SkillHive</b>
+  <input class="search" placeholder="Search here...">
+  <div class="menu">☰</div>
 </div>
 
 <!-- MAIN -->
 <div class="container">
 
-  <div class="section-title">⭐ Featured SkillMen</div>
-  <div id="featured"></div>
+  <!-- PROFILE -->
+  <div class="profile-box">
+    <img id="img">
 
-  <div class="section-title">📝 Posts / Status</div>
-  <div id="posts"></div>
+    <h3 id="name"></h3>
 
-  <div class="section-title">👥 All Members</div>
-  <div id="members"></div>
+    <p><b>Skill:</b> <span id="skill"></span></p>
+    <p><b>Experience:</b> <span id="exp"></span></p>
+    <p><b>Location:</b> <span id="loc"></span></p>
+    <p><b>Contact:</b> <span id="contact"></span></p>
+    <p><b>Portfolio:</b> <span id="port"></span></p>
+
+    <div class="why">
+      <h4>Why you?</h4>
+      <p id="why"></p>
+    </div>
+  </div>
+
+  <!-- TRENDING -->
+  <div class="trending">
+    <h3>Trending Skills</h3>
+    <div class="trend-grid" id="trends"></div>
+  </div>
+
+  <!-- OTHER USERS -->
+  <h3>Available SkillMen</h3>
+  <div id="others"></div>
 
 </div>
 
@@ -173,136 +173,115 @@ button {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
-let users = [];
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
-if (!currentUser) window.location.href = "login.html";
+if (!currentUser) {
+  window.location.href = "login.html";
+}
 
-/* OWNER */
-function loadOwner() {
-  document.getElementById("ownerName").innerText = currentUser.username;
+/* LOAD */
+async function load() {
+  const res = await fetch(API_URL);
+  const users = await res.json();
 
-  let img = currentUser["upload profile photo"] || "";
+  const user = users.find(u =>
+    (u.username || "").trim().toLowerCase() ===
+    (currentUser.username || "").trim().toLowerCase()
+  );
+
+  if (!user) return;
+
+  // PROFILE
+  document.getElementById("name").innerText = user.username || "";
+  document.getElementById("skill").innerText = user.skill || "";
+  document.getElementById("exp").innerText = user.experience || "";
+  document.getElementById("loc").innerText = user.location || "";
+  document.getElementById("contact").innerText = user["phone number"] || "";
+  document.getElementById("port").innerText = user["portifolio link"] || "";
+
+  document.getElementById("why").innerText =
+    user["why you"] ||
+    user["why"] ||
+    user["description"] ||
+    "No description";
+
+  // IMAGE FIX
+  let img = user["upload profile photo"] || "";
   const id = img.match(/[-\w]{25,}/);
   if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
-  document.getElementById("ownerImg").src = img;
-}
+  document.getElementById("img").src = img;
 
-/* LOAD DATA */
-async function load() {
-  const res = await fetch(API_URL);
-  users = await res.json();
-
-  renderSkills();
-  render();
-  renderPosts(users);
-}
-
-/* SKILLS */
-function renderSkills() {
-  const select = document.getElementById("skills");
-  const set = new Set();
+  // TRENDING
+  const trends = document.getElementById("trends");
+  const skills = new Set();
 
   users.forEach(u => {
-    if (u.skill) set.add(u.skill);
+    if (u.skill) skills.add(u.skill);
   });
 
-  set.forEach(s => {
-    let opt = document.createElement("option");
-    opt.value = s;
-    opt.textContent = s;
-    select.appendChild(opt);
+  trends.innerHTML = "";
+  skills.forEach(s => {
+    trends.innerHTML += `<div class="trend-card">${s}</div>`;
   });
+
+  // OTHER USERS
+  renderOthers(users);
 }
 
-/* MAIN FEED */
-function render(list = users) {
+/* OTHER USERS */
+function renderOthers(users) {
+  const container = document.getElementById("others");
+  container.innerHTML = "";
 
-  const featured = document.getElementById("featured");
-  const members = document.getElementById("members");
+  users.forEach(u => {
 
-  featured.innerHTML = "";
-  members.innerHTML = "";
-
-  list.forEach(u => {
+    if (
+      (u.username || "").trim().toLowerCase() ===
+      (currentUser.username || "").trim().toLowerCase()
+    ) return;
 
     let img = u["upload profile photo"] || "";
     const id = img.match(/[-\w]{25,}/);
     if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
-    const card = `
-      <div class="card">
+    const why =
+      u["why you"] ||
+      u["why"] ||
+      u["description"] ||
+      "No description";
+
+    container.innerHTML += `
+      <div class="user-card">
+
         <img src="${img}">
-        <div>
-          <b>${u.username}</b><br>
-          <small>${u.skill || ""}</small>
+        <h3>${u.username}</h3>
+
+        <p><b>Skill:</b> ${u.skill || ""}</p>
+        <p><b>Experience:</b> ${u.experience || ""}</p>
+        <p><b>Location:</b> ${u.location || ""}</p>
+        <p><b>Contact:</b> ${u["phone number"] || ""}</p>
+        <p><b>Portfolio:</b> ${u["portifolio link"] || ""}</p>
+
+        <div class="why">
+          <b>Why you?</b><br>
+          ${why}
         </div>
 
-        <button class="add-btn" onclick="addBusiness('${u.username}')">
-          Add Business
+        <button class="book-btn" onclick="bookUser('${u.username}')">
+          Book
         </button>
+
       </div>
     `;
-
-    if (u.skill && u.skill.length > 5) {
-      featured.innerHTML += card;
-    }
-
-    members.innerHTML += card;
   });
 }
 
-/* POSTS */
-function renderPosts(list) {
-  const posts = document.getElementById("posts");
-  posts.innerHTML = "";
-
-  list.forEach(u => {
-    if (u.status || u.post) {
-      posts.innerHTML += `
-        <div class="post">
-          <b>${u.username}</b><br>
-          <small>${u.status || u.post}</small>
-        </div>
-      `;
-    }
-  });
+/* BOOK */
+function bookUser(name) {
+  alert(currentUser.username + " booked " + name);
 }
 
-/* SEARCH */
-function search(q) {
-  q = q.toLowerCase();
-  render(users.filter(u =>
-    (u.username || "").toLowerCase().includes(q) ||
-    (u.skill || "").toLowerCase().includes(q)
-  ));
-}
-
-/* FILTER SKILL */
-function filterSkill(skill) {
-  if (!skill) return render(users);
-  render(users.filter(u => u.skill === skill));
-}
-
-/* BUSINESS */
-function addBusiness(name) {
-  alert(currentUser.username + " sent business request to " + name);
-}
-
-/* INBOX */
-function openInbox() {
-  alert("Inbox coming soon");
-}
-
-/* LOGOUT */
-function logout() {
-  localStorage.removeItem("user");
-  window.location.href = "login.html";
-}
-
-/* INIT */
-loadOwner();
 load();
 
 </script>
