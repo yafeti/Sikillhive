@@ -11,12 +11,12 @@ body {
   background: #f3f3f3;
 }
 
-/* TOP BAR (FIXED) */
+/* TOP BAR */
 .topbar {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #d35400;
+  background: #8e44ad;
   padding: 12px;
   color: white;
   position: sticky;
@@ -38,7 +38,7 @@ body {
   border-radius: 8px;
 }
 
-/* SIDEBAR (FIXED OUT OF PAGE ISSUE) */
+/* SIDEBAR */
 .sidebar {
   position: fixed;
   top: 0;
@@ -67,9 +67,9 @@ body {
   padding: 10px;
 }
 
-/* PROFILE (STAYS FIXED WHILE SCROLLING) */
+/* PROFILE */
 .profile-box {
-  background: #e67e22;
+  background: #a569bd;
   padding: 15px;
   border-radius: 15px;
   color: white;
@@ -107,7 +107,7 @@ body {
   text-align: center;
 }
 
-/* SECTION TITLE FIX */
+/* SECTION TITLE */
 .section-title {
   position: sticky;
   top: 240px;
@@ -126,7 +126,7 @@ body {
 
 /* USERS */
 .user-card {
-  background: #e67e22;
+  background: #a569bd;
   padding: 15px;
   border-radius: 15px;
   color: white;
@@ -139,14 +139,14 @@ body {
   border-radius: 50%;
 }
 
-/* BUTTON FIX (POST SEEK + HIRE BUTTONS) */
+/* BUTTONS */
 button {
   margin-top: 10px;
   padding: 12px;
   width: 100%;
   border: none;
   border-radius: 10px;
-  background: #ff6f00;
+  background: linear-gradient(135deg, #8e44ad, #a569bd);
   color: white;
   font-weight: bold;
   cursor: pointer;
@@ -163,23 +163,19 @@ button {
 
 <body>
 
-<!-- TOP -->
 <div class="topbar">
   <b>SkillHive</b>
   <input class="search" placeholder="Search..." oninput="searchUsers(this.value)">
   <div class="menu" onclick="toggleMenu()">☰</div>
 </div>
 
-<!-- SIDEBAR -->
 <div class="sidebar" id="menu">
   <h3>Available Skills</h3>
   <div id="skillList"></div>
 </div>
 
-<!-- MAIN -->
 <div class="container">
 
-  <!-- PROFILE -->
   <div class="profile-box">
     <img id="img">
     <h3 id="name"></h3>
@@ -195,18 +191,12 @@ button {
     </div>
   </div>
 
-  <!-- TRENDING -->
   <h3 class="section-title">Trending Skills</h3>
   <div class="trend-grid" id="trends"></div>
 
-  <!-- SEEK BUTTON -->
   <button onclick="postSeek()">+ Post Seek</button>
-
-  <!-- SEEKS -->
-  <h3 class="section-title">🔥 Seeks</h3>
   <div id="seeks"></div>
 
-  <!-- USERS -->
   <h3 class="section-title">Available SkillMen</h3>
   <div id="others"></div>
 
@@ -291,7 +281,6 @@ function renderSeeks() {
   seeksDiv.innerHTML = "";
 
   allUsers.forEach(u => {
-
     const seek =
       u.seek ||
       u["what are you looking for?"] ||
@@ -358,4 +347,4 @@ load();
 </script>
 
 </body>
-  </html>
+</html
