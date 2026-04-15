@@ -11,7 +11,7 @@ body {
   background: #f3f3f3;
 }
 
-/* TOP BAR */
+/* TOP BAR (FIXED) */
 .topbar {
   display: flex;
   align-items: center;
@@ -21,6 +21,7 @@ body {
   color: white;
   position: sticky;
   top: 0;
+  z-index: 999;
 }
 
 .search {
@@ -33,19 +34,23 @@ body {
 .menu {
   font-size: 24px;
   cursor: pointer;
+  padding: 8px 12px;
+  border-radius: 8px;
 }
 
-/* SIDEBAR */
+/* SIDEBAR (FIXED OUT OF PAGE ISSUE) */
 .sidebar {
   position: fixed;
   top: 0;
-  right: -250px;
+  right: -260px;
   width: 250px;
-  height: 100%;
+  height: 100vh;
   background: white;
   box-shadow: -2px 0 10px rgba(0,0,0,0.2);
   padding: 15px;
   transition: 0.3s;
+  z-index: 1000;
+  overflow-y: auto;
 }
 
 .sidebar.active {
@@ -62,12 +67,15 @@ body {
   padding: 10px;
 }
 
-/* PROFILE */
+/* PROFILE (STAYS FIXED WHILE SCROLLING) */
 .profile-box {
   background: #e67e22;
   padding: 15px;
   border-radius: 15px;
   color: white;
+  position: sticky;
+  top: 70px;
+  z-index: 10;
 }
 
 .profile-box img {
@@ -99,7 +107,16 @@ body {
   text-align: center;
 }
 
-/* SEEKS */
+/* SECTION TITLE FIX */
+.section-title {
+  position: sticky;
+  top: 240px;
+  background: #f3f3f3;
+  padding: 8px 0;
+  z-index: 5;
+}
+
+/* SEEK */
 .seek {
   background: white;
   padding: 10px;
@@ -122,14 +139,17 @@ body {
   border-radius: 50%;
 }
 
-.book-btn {
+/* BUTTON FIX (POST SEEK + HIRE BUTTONS) */
+button {
   margin-top: 10px;
-  padding: 10px;
+  padding: 12px;
   width: 100%;
   border: none;
   border-radius: 10px;
   background: #ff6f00;
   color: white;
+  font-weight: bold;
+  cursor: pointer;
 }
 
 /* MOBILE */
@@ -176,18 +196,18 @@ body {
   </div>
 
   <!-- TRENDING -->
-  <h3>Trending Skills</h3>
+  <h3 class="section-title">Trending Skills</h3>
   <div class="trend-grid" id="trends"></div>
 
   <!-- SEEK BUTTON -->
   <button onclick="postSeek()">+ Post Seek</button>
 
   <!-- SEEKS -->
-  <h3>🔥 Seeks</h3>
+  <h3 class="section-title">🔥 Seeks</h3>
   <div id="seeks"></div>
 
   <!-- USERS -->
-  <h3>Available SkillMen</h3>
+  <h3 class="section-title">Available SkillMen</h3>
   <div id="others"></div>
 
 </div>
@@ -195,8 +215,6 @@ body {
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
-
-// 🔥 REPLACE WITH YOUR SEEK GOOGLE FORM LINK
 const SEEK_FORM = "https://forms.gle/caxjKmM2d7jTNMf96";
 
 let allUsers = [];
@@ -204,17 +222,14 @@ const currentUser = JSON.parse(localStorage.getItem("user"));
 
 if (!currentUser) window.location.href = "login.html";
 
-/* MENU */
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("active");
 }
 
-/* OPEN FORM */
 function postSeek() {
   window.open(SEEK_FORM, "_blank");
 }
 
-/* LOAD */
 async function load() {
   const res = await fetch(API_URL);
   allUsers = await res.json();
@@ -226,7 +241,6 @@ async function load() {
 
   if (!user) return;
 
-  // PROFILE
   document.getElementById("name").innerText = user.username;
   document.getElementById("skill").innerText = user.skill;
   document.getElementById("exp").innerText = user.experience;
@@ -248,7 +262,6 @@ async function load() {
   renderUsers(allUsers);
 }
 
-/* SKILLS MENU */
 function renderSkills() {
   const list = document.getElementById("skillList");
   const skills = new Set();
@@ -261,7 +274,6 @@ function renderSkills() {
   });
 }
 
-/* TRENDING */
 function renderTrends() {
   const trends = document.getElementById("trends");
   const skills = new Set();
@@ -274,7 +286,6 @@ function renderTrends() {
   });
 }
 
-/* SEEKS FROM GOOGLE FORM */
 function renderSeeks() {
   const seeksDiv = document.getElementById("seeks");
   seeksDiv.innerHTML = "";
@@ -300,7 +311,6 @@ function renderSeeks() {
   });
 }
 
-/* USERS */
 function renderUsers(list) {
   const container = document.getElementById("others");
   container.innerHTML = "";
@@ -319,7 +329,7 @@ function renderUsers(list) {
         <p><b>Skill:</b> ${u.skill}</p>
         <p><b>Location:</b> ${u.location}</p>
 
-        <button class="book-btn" onclick="hireUser('${u.username}')">
+        <button onclick="hireUser('${u.username}')">
           Hire
         </button>
       </div>
@@ -327,7 +337,6 @@ function renderUsers(list) {
   });
 }
 
-/* SEARCH */
 function searchUsers(q) {
   q = q.toLowerCase();
 
@@ -340,7 +349,6 @@ function searchUsers(q) {
   renderUsers(filtered);
 }
 
-/* HIRE */
 function hireUser(name) {
   alert(currentUser.username + " wants to hire " + name);
 }
@@ -350,4 +358,4 @@ load();
 </script>
 
 </body>
-</html>
+  </html>
