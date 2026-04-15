@@ -5,101 +5,42 @@
 <title>SkillHive</title>
 
 <style>
-body {
-  margin: 0;
-  font-family: Arial;
-  background: #f3f3f3;
-}
+body {margin:0;font-family:Arial;background:#f3f3f3;}
 
-/* TOP */
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  background: #8e44ad;
-  color: white;
-  padding: 12px;
+  display:flex;justify-content:space-between;
+  background:#8e44ad;color:white;padding:12px;
 }
 
-/* SIDEBAR */
 .sidebar {
-  position: fixed;
-  right: -300px;
-  top: 0;
-  width: 280px;
-  height: 100%;
-  background: white;
-  padding: 15px;
-  transition: 0.3s;
-  overflow-y: auto;
+  position:fixed;right:-300px;top:0;width:280px;height:100%;
+  background:white;padding:15px;transition:.3s;overflow-y:auto;
 }
+.sidebar.active{right:0;}
 
-.sidebar.active { right: 0; }
+.card {background:#f3e9fb;padding:8px;margin:6px 0;border-radius:8px;}
 
-.item {
-  background: #f3e9fb;
-  padding: 8px;
-  margin-bottom: 6px;
-  border-radius: 8px;
-}
-
-/* PROFILE */
 .profile {
-  background: #a569bd;
-  color: white;
-  padding: 15px;
-  margin: 10px;
-  border-radius: 15px;
+  background:#a569bd;color:white;padding:15px;margin:10px;border-radius:15px;
 }
 
-/* USERS */
 .user {
-  background: white;
-  margin: 10px;
-  padding: 10px;
-  border-radius: 10px;
+  background:white;margin:10px;padding:10px;border-radius:10px;
 }
 
-/* BUTTON */
 button {
-  width: 100%;
-  padding: 10px;
-  margin-top: 5px;
-  border: none;
-  border-radius: 8px;
-  background: #8e44ad;
-  color: white;
+  width:100%;padding:10px;margin-top:5px;
+  border:none;border-radius:8px;background:#8e44ad;color:white;
 }
 
-/* CHAT */
 .chat {
-  position: fixed;
-  bottom: 0;
-  right: 10px;
-  width: 300px;
-  height: 400px;
-  background: white;
-  display: none;
-  flex-direction: column;
+  position:fixed;bottom:0;right:10px;width:300px;height:400px;
+  background:white;display:none;flex-direction:column;
 }
 
-.chatHead {
-  background: #8e44ad;
-  color: white;
-  padding: 10px;
-}
-
-.chatBody {
-  flex: 1;
-  overflow-y: auto;
-  padding: 10px;
-}
-
-.chatMsg {
-  background: #eee;
-  margin: 5px 0;
-  padding: 5px;
-  border-radius: 6px;
-}
+.chatHead {background:#8e44ad;color:white;padding:10px;}
+.chatBody {flex:1;overflow-y:auto;padding:10px;}
+.msg {background:#eee;margin:5px;padding:5px;border-radius:6px;}
 
 </style>
 </head>
@@ -115,41 +56,40 @@ button {
 <div class="sidebar" id="menu">
 
   <h3>📩 Requests</h3>
-  <div id="requests"></div>
+  <div id="reqBox"></div>
 
   <h3>🔔 Notifications</h3>
-  <div id="notes"></div>
+  <div id="noteBox"></div>
 
   <button onclick="logout()" style="background:red;">Logout</button>
 </div>
 
 <!-- PROFILE -->
 <div class="profile">
-  <h3 id="name"></h3>
-  <p id="skill"></p>
+  <h3 id="me"></h3>
 </div>
 
 <!-- USERS -->
 <div id="users"></div>
 
 <!-- CHAT -->
-<div class="chat" id="chatBox">
-  <div class="chatHead" id="chatTitle"></div>
+<div class="chat" id="chat">
+  <div class="chatHead" id="chatName"></div>
   <div class="chatBody" id="chatBody"></div>
-  <input id="msg" placeholder="Message..." style="width:100%">
-  <button onclick="sendMsg()">Send</button>
+  <input id="text" placeholder="message..." style="width:100%">
+  <button onclick="send()">Send</button>
 </div>
 
 <script>
 
-let currentUser = JSON.parse(localStorage.getItem("user"));
-if(!currentUser) location.href="login.html";
+let me = JSON.parse(localStorage.getItem("user"));
+if(!me) location.href="login.html";
 
 let users=[];
-let requests=JSON.parse(localStorage.getItem("requests")||"[]");
-let notes=JSON.parse(localStorage.getItem("notes")||"[]");
-let chats=JSON.parse(localStorage.getItem("chats")||"[]");
-let messages=JSON.parse(localStorage.getItem("messages")||"[]");
+let requests=JSON.parse(localStorage.getItem("req")||"[]");
+let notes=JSON.parse(localStorage.getItem("note")||"[]");
+let chats=JSON.parse(localStorage.getItem("chatAccess")||"[]");
+let messages=JSON.parse(localStorage.getItem("msgs")||"[]");
 
 let activeChat=null;
 
@@ -158,27 +98,28 @@ function toggleMenu(){
   document.getElementById("menu").classList.toggle("active");
 }
 
+/* LOGOUT */
 function logout(){
   localStorage.removeItem("user");
   location.href="login.html";
 }
 
 /* SEND REQUEST */
-function hireUser(name){
+function hireUser(to){
 
-  if(name===currentUser.username){
+  if(to===me.username){
     alert("Cannot hire yourself");
     return;
   }
 
   requests.push({
-    from:currentUser.username,
-    to:name,
+    from:me.username,
+    to:to,
     status:"pending"
   });
 
   save();
-  renderAll();
+  render();
 }
 
 /* ACCEPT */
@@ -189,10 +130,10 @@ function accept(i){
 
   chats.push([r.from,r.to]);
 
-  notes.push(`✅ ${r.to} accepted ${r.from}`);
+  notes.push(`✅ ${r.to} accepted your request (${r.from})`);
 
   save();
-  renderAll();
+  render();
 }
 
 /* REJECT */
@@ -201,44 +142,45 @@ function reject(i){
   let r=requests[i];
   r.status="rejected";
 
-  notes.push(`❌ ${r.to} rejected ${r.from}`);
+  notes.push(`❌ ${r.to} rejected your request (${r.from})`);
 
   save();
-  renderAll();
+  render();
 }
 
 /* CHECK CHAT */
 function canChat(user){
-  return chats.some(c=>c.includes(currentUser.username)&&c.includes(user));
+  return chats.some(c=>c.includes(me.username)&&c.includes(user));
 }
 
 /* OPEN CHAT */
 function openChat(user){
 
   if(!canChat(user)){
-    alert("Chat locked. Wait for acceptance.");
+    alert("Chat locked. Request must be accepted.");
     return;
   }
 
   activeChat=user;
-  document.getElementById("chatBox").style.display="flex";
-  document.getElementById("chatTitle").innerText="Chat with "+user;
+  document.getElementById("chat").style.display="flex";
+  document.getElementById("chatName").innerText=user;
 
   renderChat();
 }
 
 /* SEND MESSAGE */
-function sendMsg(){
+function send(){
 
-  let text=document.getElementById("msg").value;
-  if(!text) return;
+  let t=document.getElementById("text").value;
+  if(!t) return;
 
   messages.push({
-    from:currentUser.username,
+    from:me.username,
     to:activeChat,
-    text:text
+    text:t
   });
 
+  document.getElementById("text").value="";
   save();
   renderChat();
 }
@@ -250,23 +192,82 @@ function renderChat(){
   box.innerHTML="";
 
   messages.filter(m=>
-    (m.from===currentUser.username&&m.to===activeChat)||
-    (m.from===activeChat&&m.to===currentUser.username)
+    (m.from===me.username&&m.to===activeChat)||
+    (m.from===activeChat&&m.to===me.username)
   ).forEach(m=>{
-    box.innerHTML+=`<div class="chatMsg"><b>${m.from}:</b> ${m.text}</div>`;
+    box.innerHTML+=`<div class="msg"><b>${m.from}:</b> ${m.text}</div>`;
   });
 }
 
-/* REQUESTS UI */
+/* REQUEST UI */
 function renderRequests(){
 
-  let my=requests.filter(r=>r.to===currentUser.username);
+  let mine=requests.filter(r=>r.to===me.username);
 
-  document.getElementById("requests").innerHTML =
-    my.map((r,i)=>`
-      <div class="item">
-        <b>${r.from}</b> wants to hire you<br>
-        Status: ${r.status}
-        ${r.status==="pending" ? `
-          <button onclick="accept(${i})">Confirm</button>
-          <button onclick="reject(${
+  document.getElementById("reqBox").innerHTML =
+    mine.map((r)=>{
+      let index = requests.indexOf(r);
+      return `
+        <div class="card">
+          <b>${r.from}</b> wants to hire you<br>
+          ${r.status==="pending" ? `
+            <button onclick="accept(${index})">Confirm</button>
+            <button onclick="reject(${index})" style="background:red;">Reject</button>
+          ` : `Status: ${r.status}`}
+        </div>
+      `;
+    }).join("");
+}
+
+/* USERS */
+function renderUsers(){
+
+  document.getElementById("users").innerHTML =
+    users.map(u=>`
+      <div class="user">
+        <b>${u.username}</b><br>
+        ${u.skill}
+        <button onclick="hireUser('${u.username}')">Hire</button>
+        <button onclick="openChat('${u.username}')">Message</button>
+      </div>
+    `).join("");
+}
+
+/* NOTES */
+function renderNotes(){
+  document.getElementById("noteBox").innerHTML =
+    notes.slice(-10).map(n=>`<div class="card">${n}</div>`).join("");
+}
+
+/* SAVE */
+function save(){
+  localStorage.setItem("req",JSON.stringify(requests));
+  localStorage.setItem("note",JSON.stringify(notes));
+  localStorage.setItem("chatAccess",JSON.stringify(chats));
+  localStorage.setItem("msgs",JSON.stringify(messages));
+}
+
+/* MAIN */
+function render(){
+  renderRequests();
+  renderUsers();
+  renderNotes();
+}
+
+/* LOAD */
+async function load(){
+
+  let res=await fetch("https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec");
+  users=await res.json();
+
+  document.getElementById("me").innerText=me.username;
+
+  render();
+}
+
+load();
+
+</script>
+
+</body>
+</html>
