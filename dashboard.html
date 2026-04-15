@@ -84,6 +84,30 @@ body {
   border-radius: 50%;
 }
 
+/* ACTION ROW */
+.action-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  align-items: center;
+}
+
+.action-row button {
+  flex: 1;
+  margin-top: 0;
+  background: linear-gradient(135deg, #8e44ad, #a569bd);
+}
+
+.hires-box {
+  flex: 1;
+  background: white;
+  color: black;
+  padding: 10px;
+  border-radius: 10px;
+  text-align: center;
+  font-weight: bold;
+}
+
 /* WHY */
 .why {
   background: white;
@@ -176,6 +200,7 @@ button {
 
 <div class="container">
 
+  <!-- PROFILE -->
   <div class="profile-box">
     <img id="img">
     <h3 id="name"></h3>
@@ -185,18 +210,30 @@ button {
     <p><b>Location:</b> <span id="loc"></span></p>
     <p><b>Contact:</b> <span id="contact"></span></p>
 
+    <div class="action-row">
+      <button onclick="openMessage()">💬 Message</button>
+      <div class="hires-box">
+        Total Hires: <span id="hiresCount">0</span>
+      </div>
+    </div>
+
     <div class="why">
       <b>Why you?</b>
       <p id="why"></p>
     </div>
   </div>
 
+  <!-- TRENDING -->
   <h3 class="section-title">Trending Skills</h3>
   <div class="trend-grid" id="trends"></div>
 
   <button onclick="postSeek()">+ Post Seek</button>
+
+  <!-- SEEKS -->
+  <h3 class="section-title">🔥 Seeks</h3>
   <div id="seeks"></div>
 
+  <!-- USERS -->
   <h3 class="section-title">Available SkillMen</h3>
   <div id="others"></div>
 
@@ -218,6 +255,10 @@ function toggleMenu() {
 
 function postSeek() {
   window.open(SEEK_FORM, "_blank");
+}
+
+function openMessage() {
+  alert("Messaging feature coming soon for " + document.getElementById("name").innerText);
 }
 
 async function load() {
@@ -245,6 +286,12 @@ async function load() {
   if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
   document.getElementById("img").src = img;
+
+  let totalHires = allUsers.filter(u =>
+    u.hires && u.hires.includes(currentUser.username)
+  ).length;
+
+  document.getElementById("hiresCount").innerText = totalHires;
 
   renderSkills();
   renderTrends();
@@ -281,6 +328,7 @@ function renderSeeks() {
   seeksDiv.innerHTML = "";
 
   allUsers.forEach(u => {
+
     const seek =
       u.seek ||
       u["what are you looking for?"] ||
@@ -290,9 +338,8 @@ function renderSeeks() {
     if (seek) {
       seeksDiv.innerHTML += `
         <div class="seek">
-          <b>${u.username}</b><br>
-          ${seek}
-          <br><br>
+          <h4>${u.username}</h4>
+          <p>${seek}</p>
           <button onclick="hireUser('${u.username}')">Hire</button>
         </div>
       `;
@@ -347,4 +394,4 @@ load();
 </script>
 
 </body>
-</html
+  </html>
