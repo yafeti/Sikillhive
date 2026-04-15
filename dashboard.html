@@ -32,6 +32,29 @@ body {
 
 .menu {
   font-size: 24px;
+  cursor: pointer;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: -250px;
+  width: 250px;
+  height: 100%;
+  background: white;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.2);
+  padding: 15px;
+  transition: 0.3s;
+}
+
+.sidebar.active {
+  right: 0;
+}
+
+.skill-item {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
 }
 
 /* MAIN */
@@ -63,10 +86,6 @@ body {
 }
 
 /* TRENDING */
-.trending {
-  margin-top: 15px;
-}
-
 .trend-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -75,12 +94,20 @@ body {
 
 .trend-card {
   background: white;
-  padding: 15px;
+  padding: 10px;
   border-radius: 10px;
   text-align: center;
 }
 
-/* OTHER USERS */
+/* SEEKS */
+.seek {
+  background: white;
+  padding: 10px;
+  border-radius: 10px;
+  margin-top: 10px;
+}
+
+/* USERS */
 .user-card {
   background: #e67e22;
   padding: 15px;
@@ -95,14 +122,6 @@ body {
   border-radius: 50%;
 }
 
-.user-card .why {
-  background: white;
-  color: black;
-  padding: 8px;
-  border-radius: 8px;
-  margin-top: 8px;
-}
-
 .book-btn {
   margin-top: 10px;
   padding: 10px;
@@ -111,15 +130,10 @@ body {
   border-radius: 10px;
   background: #ff6f00;
   color: white;
-  font-weight: bold;
 }
 
 /* MOBILE */
 @media(max-width: 768px) {
-  .search {
-    width: 50%;
-  }
-
   .trend-grid {
     grid-template-columns: repeat(2, 1fr);
   }
@@ -132,8 +146,14 @@ body {
 <!-- TOP -->
 <div class="topbar">
   <b>SkillHive</b>
-  <input class="search" placeholder="Search here...">
-  <div class="menu">☰</div>
+  <input class="search" placeholder="Search..." oninput="searchUsers(this.value)">
+  <div class="menu" onclick="toggleMenu()">☰</div>
+</div>
+
+<!-- SIDEBAR -->
+<div class="sidebar" id="menu">
+  <h3>Available Skills</h3>
+  <div id="skillList"></div>
 </div>
 
 <!-- MAIN -->
@@ -142,28 +162,31 @@ body {
   <!-- PROFILE -->
   <div class="profile-box">
     <img id="img">
-
     <h3 id="name"></h3>
 
     <p><b>Skill:</b> <span id="skill"></span></p>
     <p><b>Experience:</b> <span id="exp"></span></p>
     <p><b>Location:</b> <span id="loc"></span></p>
     <p><b>Contact:</b> <span id="contact"></span></p>
-    <p><b>Portfolio:</b> <span id="port"></span></p>
 
     <div class="why">
-      <h4>Why you?</h4>
+      <b>Why you?</b>
       <p id="why"></p>
     </div>
   </div>
 
   <!-- TRENDING -->
-  <div class="trending">
-    <h3>Trending Skills</h3>
-    <div class="trend-grid" id="trends"></div>
-  </div>
+  <h3>Trending Skills</h3>
+  <div class="trend-grid" id="trends"></div>
 
-  <!-- OTHER USERS -->
+  <!-- SEEK BUTTON -->
+  <button onclick="postSeek()">+ Post Seek</button>
+
+  <!-- SEEKS -->
+  <h3>🔥 Seeks</h3>
+  <div id="seeks"></div>
+
+  <!-- USERS -->
   <h3>Available SkillMen</h3>
   <div id="others"></div>
 
@@ -173,113 +196,153 @@ body {
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
 
+// 🔥 REPLACE WITH YOUR SEEK GOOGLE FORM LINK
+const SEEK_FORM = "https://forms.gle/caxjKmM2d7jTNMf96";
+
+let allUsers = [];
 const currentUser = JSON.parse(localStorage.getItem("user"));
 
-if (!currentUser) {
-  window.location.href = "login.html";
+if (!currentUser) window.location.href = "login.html";
+
+/* MENU */
+function toggleMenu() {
+  document.getElementById("menu").classList.toggle("active");
+}
+
+/* OPEN FORM */
+function postSeek() {
+  window.open(SEEK_FORM, "_blank");
 }
 
 /* LOAD */
 async function load() {
   const res = await fetch(API_URL);
-  const users = await res.json();
+  allUsers = await res.json();
 
-  const user = users.find(u =>
-    (u.username || "").trim().toLowerCase() ===
-    (currentUser.username || "").trim().toLowerCase()
+  const user = allUsers.find(u =>
+    (u.username || "").toLowerCase().trim() ===
+    (currentUser.username || "").toLowerCase().trim()
   );
 
   if (!user) return;
 
   // PROFILE
-  document.getElementById("name").innerText = user.username || "";
-  document.getElementById("skill").innerText = user.skill || "";
-  document.getElementById("exp").innerText = user.experience || "";
-  document.getElementById("loc").innerText = user.location || "";
-  document.getElementById("contact").innerText = user["phone number"] || "";
-  document.getElementById("port").innerText = user["portifolio link"] || "";
+  document.getElementById("name").innerText = user.username;
+  document.getElementById("skill").innerText = user.skill;
+  document.getElementById("exp").innerText = user.experience;
+  document.getElementById("loc").innerText = user.location;
+  document.getElementById("contact").innerText = user["phone number"];
 
   document.getElementById("why").innerText =
-    user["why you"] ||
-    user["why"] ||
-    user["description"] ||
-    "No description";
+    user["why you"] || user["description"] || "No description";
 
-  // IMAGE FIX
   let img = user["upload profile photo"] || "";
   const id = img.match(/[-\w]{25,}/);
   if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
   document.getElementById("img").src = img;
 
-  // TRENDING
+  renderSkills();
+  renderTrends();
+  renderSeeks();
+  renderUsers(allUsers);
+}
+
+/* SKILLS MENU */
+function renderSkills() {
+  const list = document.getElementById("skillList");
+  const skills = new Set();
+
+  allUsers.forEach(u => u.skill && skills.add(u.skill));
+
+  list.innerHTML = "";
+  skills.forEach(s => {
+    list.innerHTML += `<div class="skill-item">${s}</div>`;
+  });
+}
+
+/* TRENDING */
+function renderTrends() {
   const trends = document.getElementById("trends");
   const skills = new Set();
 
-  users.forEach(u => {
-    if (u.skill) skills.add(u.skill);
-  });
+  allUsers.forEach(u => u.skill && skills.add(u.skill));
 
   trends.innerHTML = "";
   skills.forEach(s => {
     trends.innerHTML += `<div class="trend-card">${s}</div>`;
   });
-
-  // OTHER USERS
-  renderOthers(users);
 }
 
-/* OTHER USERS */
-function renderOthers(users) {
+/* SEEKS FROM GOOGLE FORM */
+function renderSeeks() {
+  const seeksDiv = document.getElementById("seeks");
+  seeksDiv.innerHTML = "";
+
+  allUsers.forEach(u => {
+
+    const seek =
+      u.seek ||
+      u["what are you looking for?"] ||
+      u.status ||
+      "";
+
+    if (seek) {
+      seeksDiv.innerHTML += `
+        <div class="seek">
+          <b>${u.username}</b><br>
+          ${seek}
+          <br><br>
+          <button onclick="hireUser('${u.username}')">Hire</button>
+        </div>
+      `;
+    }
+  });
+}
+
+/* USERS */
+function renderUsers(list) {
   const container = document.getElementById("others");
   container.innerHTML = "";
 
-  users.forEach(u => {
-
-    if (
-      (u.username || "").trim().toLowerCase() ===
-      (currentUser.username || "").trim().toLowerCase()
-    ) return;
+  list.forEach(u => {
+    if (u.username === currentUser.username) return;
 
     let img = u["upload profile photo"] || "";
     const id = img.match(/[-\w]{25,}/);
     if (id) img = "https://drive.google.com/thumbnail?id=" + id;
 
-    const why =
-      u["why you"] ||
-      u["why"] ||
-      u["description"] ||
-      "No description";
-
     container.innerHTML += `
       <div class="user-card">
-
         <img src="${img}">
         <h3>${u.username}</h3>
+        <p><b>Skill:</b> ${u.skill}</p>
+        <p><b>Location:</b> ${u.location}</p>
 
-        <p><b>Skill:</b> ${u.skill || ""}</p>
-        <p><b>Experience:</b> ${u.experience || ""}</p>
-        <p><b>Location:</b> ${u.location || ""}</p>
-        <p><b>Contact:</b> ${u["phone number"] || ""}</p>
-        <p><b>Portfolio:</b> ${u["portifolio link"] || ""}</p>
-
-        <div class="why">
-          <b>Why you?</b><br>
-          ${why}
-        </div>
-
-        <button class="book-btn" onclick="bookUser('${u.username}')">
-          Book
+        <button class="book-btn" onclick="hireUser('${u.username}')">
+          Hire
         </button>
-
       </div>
     `;
   });
 }
 
-/* BOOK */
-function bookUser(name) {
-  alert(currentUser.username + " booked " + name);
+/* SEARCH */
+function searchUsers(q) {
+  q = q.toLowerCase();
+
+  const filtered = allUsers.filter(u =>
+    (u.username || "").toLowerCase().includes(q) ||
+    (u.skill || "").toLowerCase().includes(q) ||
+    (u.location || "").toLowerCase().includes(q)
+  );
+
+  renderUsers(filtered);
+}
+
+/* HIRE */
+function hireUser(name) {
+  alert(currentUser.username + " wants to hire " + name);
 }
 
 load();
