@@ -42,8 +42,8 @@ body {
 .sidebar {
   position: fixed;
   top: 0;
-  right: -260px;
-  width: 250px;
+  right: -300px;
+  width: 280px;
   height: 100vh;
   background: white;
   box-shadow: -2px 0 10px rgba(0,0,0,0.2);
@@ -137,6 +137,14 @@ body {
   margin-top: 10px;
 }
 
+/* SEEK CARD */
+.seek-card {
+  background: white;
+  padding: 12px;
+  border-radius: 12px;
+  margin-top: 10px;
+}
+
 /* USERS */
 .user-card {
   background: #a569bd;
@@ -182,13 +190,18 @@ button {
   <div class="menu" onclick="toggleMenu()">☰</div>
 </div>
 
+<!-- SIDEBAR -->
 <div class="sidebar" id="menu">
-  <h3>Available Skills</h3>
+  <h3>Menu</h3>
+
   <div id="skillList"></div>
 
   <hr>
 
-  <p>🔔 Requests: <span id="notifyCount">0</span></p>
+  <p>📩 Hire Requests: <span id="requestCount">0</span></p>
+  <p>🔎 Seeks: <span id="seekCount">0</span></p>
+
+  <hr>
 
   <button onclick="logout()" style="background:#e74c3c;">
     🚪 Logout
@@ -223,9 +236,12 @@ button {
   <h3 class="section-title">Trending Skills</h3>
   <div class="trend-grid" id="trends"></div>
 
-  <button onclick="postSeek()">+ Post Seek</button>
+  <!-- NEW SEEK FORM LINK -->
+  <button onclick="window.open('https://forms.gle/JWRFFDkJmccfkkdy9','_blank')">
+    + Post Seek
+  </button>
 
-  <h3 class="section-title">🔥 Seeks</h3>
+  <h3 class="section-title">🔥 Seeks Feed</h3>
   <div id="seeks"></div>
 
   <h3 class="section-title">Available SkillMen</h3>
@@ -236,23 +252,15 @@ button {
 <script>
 
 const API_URL = "https://script.google.com/macros/s/AKfycbw4wf3BZe7SyRUR6tNAwWijfvo9mCFeXeuL0OgFYFAKxwTZbxnjM1h2p8QN14s_7ZZM2g/exec";
-const SEEK_FORM = "https://forms.gle/caxjKmM2d7jTNMf96";
 
 let allUsers = [];
-const currentUser = JSON.parse(localStorage.getItem("user"));
+let seeks = JSON.parse(localStorage.getItem("seeks") || "[]");
+let requests = JSON.parse(localStorage.getItem("requests") || "[]");
 
+const currentUser = JSON.parse(localStorage.getItem("user"));
 if (!currentUser) window.location.href = "login.html";
 
-/* ---------------- STORAGE ---------------- */
-function getRequests() {
-  return JSON.parse(localStorage.getItem("hireRequests") || "[]");
-}
-
-function saveRequests(data) {
-  localStorage.setItem("hireRequests", JSON.stringify(data));
-}
-
-/* ---------------- MENU ---------------- */
+/* MENU */
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("active");
 }
@@ -262,38 +270,62 @@ function logout() {
   window.location.href = "login.html";
 }
 
-/* ---------------- MESSAGE SYSTEM ---------------- */
+/* MESSAGE */
 function openMessages() {
-  alert("Messaging system (Level 1 ready). Next upgrade will be full chat UI.");
+  alert("Messaging will unlock after request is confirmed.");
 }
 
-/* ---------------- HIRE SYSTEM ---------------- */
+/* HIRE SYSTEM */
 function hireUser(name) {
-  let req = getRequests();
-
-  req.push({
+  requests.push({
     from: currentUser.username,
     to: name,
     status: "pending",
     time: new Date().toISOString()
   });
 
-  saveRequests(req);
-  updateNotifications();
-
-  alert("Hire request sent to " + name);
+  localStorage.setItem("requests", JSON.stringify(requests));
+  updateCounts();
 }
 
-/* ---------------- NOTIFICATIONS ---------------- */
-function updateNotifications() {
-  let req = getRequests();
-
-  let count = req.filter(r => r.to === currentUser.username).length;
-
-  document.getElementById("notifyCount").innerText = count;
+/* ACCEPT HIRE (SIMULATED CONFIRM) */
+function confirmHire(index) {
+  requests[index].status = "confirmed";
+  localStorage.setItem("requests", JSON.stringify(requests));
+  updateCounts();
+  alert("Request confirmed! You can now message each other.");
 }
 
-/* ---------------- LOAD ---------------- */
+/* RENDER SEEKS */
+function renderSeeks() {
+  const container = document.getElementById("seeks");
+  container.innerHTML = "";
+
+  seeks.forEach(s => {
+
+    container.innerHTML += `
+      <div class="seek-card">
+        <h4>${s.whoSeek || "Unknown"}</h4>
+        <p><b>Seek:</b> ${s.seekWhat || ""}</p>
+
+        ${s.photo ? `<img src="${s.photo}" style="width:80px;height:80px;border-radius:50%;">` : ""}
+
+        <button onclick="hireUser('${s.whoSeek}')">Respond</button>
+      </div>
+    `;
+  });
+}
+
+/* COUNTS */
+function updateCounts() {
+
+  const reqCount = requests.filter(r => r.to === currentUser.username).length;
+  document.getElementById("requestCount").innerText = reqCount;
+
+  document.getElementById("seekCount").innerText = seeks.length;
+}
+
+/* LOAD USERS */
 async function load() {
   const res = await fetch(API_URL);
   allUsers = await res.json();
@@ -320,21 +352,14 @@ async function load() {
 
   document.getElementById("img").src = img;
 
-  let totalHires = allUsers.filter(u =>
-    u.hires && u.hires.includes(currentUser.username)
-  ).length;
-
-  document.getElementById("hiresCount").innerText = totalHires;
-
   renderSkills();
   renderTrends();
-  renderSeeks();
   renderUsers(allUsers);
-
-  updateNotifications();
+  renderSeeks();
+  updateCounts();
 }
 
-/* ---------------- RENDER ---------------- */
+/* SKILLS */
 function renderSkills() {
   const list = document.getElementById("skillList");
   const skills = new Set();
@@ -347,6 +372,7 @@ function renderSkills() {
   });
 }
 
+/* TREND */
 function renderTrends() {
   const trends = document.getElementById("trends");
   const skills = new Set();
@@ -359,30 +385,7 @@ function renderTrends() {
   });
 }
 
-function renderSeeks() {
-  const seeksDiv = document.getElementById("seeks");
-  seeksDiv.innerHTML = "";
-
-  allUsers.forEach(u => {
-
-    const seek =
-      u.seek ||
-      u["what are you looking for?"] ||
-      u.status ||
-      "";
-
-    if (seek) {
-      seeksDiv.innerHTML += `
-        <div class="seek">
-          <h4>${u.username}</h4>
-          <p>${seek}</p>
-          <button onclick="hireUser('${u.username}')">Hire</button>
-        </div>
-      `;
-    }
-  });
-}
-
+/* USERS */
 function renderUsers(list) {
   const container = document.getElementById("others");
   container.innerHTML = "";
@@ -398,17 +401,16 @@ function renderUsers(list) {
       <div class="user-card">
         <img src="${img}">
         <h3>${u.username}</h3>
-        <p><b>Skill:</b> ${u.skill}</p>
-        <p><b>Location:</b> ${u.location}</p>
+        <p>${u.skill}</p>
+        <p>${u.location}</p>
 
-        <button onclick="hireUser('${u.username}')">
-          Hire
-        </button>
+        <button onclick="hireUser('${u.username}')">Hire</button>
       </div>
     `;
   });
 }
 
+/* SEARCH */
 function searchUsers(q) {
   q = q.toLowerCase();
 
