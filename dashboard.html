@@ -89,12 +89,10 @@ body {
   display: flex;
   gap: 10px;
   margin-top: 10px;
-  align-items: center;
 }
 
 .action-row button {
   flex: 1;
-  margin-top: 0;
   background: linear-gradient(135deg, #8e44ad, #a569bd);
 }
 
@@ -129,15 +127,6 @@ body {
   padding: 10px;
   border-radius: 10px;
   text-align: center;
-}
-
-/* SECTION TITLE */
-.section-title {
-  position: sticky;
-  top: 240px;
-  background: #f3f3f3;
-  padding: 8px 0;
-  z-index: 5;
 }
 
 /* SEEK */
@@ -196,6 +185,14 @@ button {
 <div class="sidebar" id="menu">
   <h3>Available Skills</h3>
   <div id="skillList"></div>
+
+  <hr>
+
+  <p>🔔 Requests: <span id="notifyCount">0</span></p>
+
+  <button onclick="logout()" style="background:#e74c3c;">
+    🚪 Logout
+  </button>
 </div>
 
 <div class="container">
@@ -211,7 +208,7 @@ button {
     <p><b>Contact:</b> <span id="contact"></span></p>
 
     <div class="action-row">
-      <button onclick="openMessage()">💬 Message</button>
+      <button onclick="openMessages()">💬 Messages</button>
       <div class="hires-box">
         Total Hires: <span id="hiresCount">0</span>
       </div>
@@ -223,17 +220,14 @@ button {
     </div>
   </div>
 
-  <!-- TRENDING -->
   <h3 class="section-title">Trending Skills</h3>
   <div class="trend-grid" id="trends"></div>
 
   <button onclick="postSeek()">+ Post Seek</button>
 
-  <!-- SEEKS -->
   <h3 class="section-title">🔥 Seeks</h3>
   <div id="seeks"></div>
 
-  <!-- USERS -->
   <h3 class="section-title">Available SkillMen</h3>
   <div id="others"></div>
 
@@ -249,18 +243,57 @@ const currentUser = JSON.parse(localStorage.getItem("user"));
 
 if (!currentUser) window.location.href = "login.html";
 
+/* ---------------- STORAGE ---------------- */
+function getRequests() {
+  return JSON.parse(localStorage.getItem("hireRequests") || "[]");
+}
+
+function saveRequests(data) {
+  localStorage.setItem("hireRequests", JSON.stringify(data));
+}
+
+/* ---------------- MENU ---------------- */
 function toggleMenu() {
   document.getElementById("menu").classList.toggle("active");
 }
 
-function postSeek() {
-  window.open(SEEK_FORM, "_blank");
+function logout() {
+  localStorage.removeItem("user");
+  window.location.href = "login.html";
 }
 
-function openMessage() {
-  alert("Messaging feature coming soon for " + document.getElementById("name").innerText);
+/* ---------------- MESSAGE SYSTEM ---------------- */
+function openMessages() {
+  alert("Messaging system (Level 1 ready). Next upgrade will be full chat UI.");
 }
 
+/* ---------------- HIRE SYSTEM ---------------- */
+function hireUser(name) {
+  let req = getRequests();
+
+  req.push({
+    from: currentUser.username,
+    to: name,
+    status: "pending",
+    time: new Date().toISOString()
+  });
+
+  saveRequests(req);
+  updateNotifications();
+
+  alert("Hire request sent to " + name);
+}
+
+/* ---------------- NOTIFICATIONS ---------------- */
+function updateNotifications() {
+  let req = getRequests();
+
+  let count = req.filter(r => r.to === currentUser.username).length;
+
+  document.getElementById("notifyCount").innerText = count;
+}
+
+/* ---------------- LOAD ---------------- */
 async function load() {
   const res = await fetch(API_URL);
   allUsers = await res.json();
@@ -297,8 +330,11 @@ async function load() {
   renderTrends();
   renderSeeks();
   renderUsers(allUsers);
+
+  updateNotifications();
 }
 
+/* ---------------- RENDER ---------------- */
 function renderSkills() {
   const list = document.getElementById("skillList");
   const skills = new Set();
@@ -385,13 +421,9 @@ function searchUsers(q) {
   renderUsers(filtered);
 }
 
-function hireUser(name) {
-  alert(currentUser.username + " wants to hire " + name);
-}
-
 load();
 
 </script>
 
 </body>
-  </html>
+</html>
